@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
-import { Calendar, TrendingUp, TrendingDown, Minus, RefreshCw, AlertCircle, Clock } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Calendar, TrendingUp, TrendingDown, RefreshCw, AlertCircle } from 'lucide-react';
 import { stocksAPI, HistoricalData, IntradayData, TimeRange } from '../../utils/stocksAPI';
 
 interface StockChartProps {
@@ -146,7 +146,7 @@ export default function StockChart({ symbol, companyName, className = "" }: Stoc
   }, [symbol, selectedRange]);
 
   // Custom tooltip component
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (

@@ -9,7 +9,7 @@ import {
   ArrowLeftRight,
   LineChart
 } from 'lucide-react';
-import { ThemeToggle } from '../ui/ThemeToggle';
+// Removed unused ThemeToggle import
 
 interface LayoutProps {
   children: ReactNode;

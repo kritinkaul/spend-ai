@@ -351,7 +351,7 @@ export default function CurrencyConverter() {
                       <X className="h-4 w-4 mx-auto" />
                     </button>
 
-                    {[7, 8, 9].map((num) => (
+                    {[7, 8, 9].map((num: number) => (
                       <button key={num} onClick={() => inputNumber(String(num))} className="p-3 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-500 transition-colors">
                         {num}
                       </button>
@@ -360,7 +360,7 @@ export default function CurrencyConverter() {
                       <Minus className="h-4 w-4 mx-auto" />
                     </button>
 
-                    {[4, 5, 6].map(num => (
+                    {[4, 5, 6].map((num: number) => (
                       <button key={num} onClick={() => inputNumber(String(num))} className="p-3 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-500 transition-colors">
                         {num}
                       </button>
@@ -369,7 +369,7 @@ export default function CurrencyConverter() {
                       <Plus className="h-4 w-4 mx-auto" />
                     </button>
 
-                    {[1, 2, 3].map(num => (
+                    {[1, 2, 3].map((num: number) => (
                       <button key={num} onClick={() => inputNumber(String(num))} className="p-3 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-500 transition-colors">
                         {num}
                       </button>

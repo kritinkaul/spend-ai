@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Star, Plus, X, TrendingUp, TrendingDown, RefreshCw, Building2 } from 'lucide-react';
 import { LineChart, Line, ResponsiveContainer } from 'recharts';
-import { stocksAPI, StockPrice } from '../../services/stockApi';
+import { stocksAPI } from '../../services/stockApi';
 import { getCompanyLogoUrl } from '../../utils/companyLogos';
 import StockSearchInput from './StockSearchInput';
 
@@ -77,7 +77,7 @@ export default function WatchlistCards() {
   
   // Auto-refresh interval (1 minute)
   const AUTO_REFRESH_INTERVAL = 60000; // 1 minute
-  const intervalRef = useRef<NodeJS.Timeout>();
+  const intervalRef = useRef<number>();
 
   // Load watchlist from localStorage
   useEffect(() => {
@@ -211,7 +211,7 @@ export default function WatchlistCards() {
         clearInterval(intervalRef.current);
       }
       
-      intervalRef.current = setInterval(() => {
+      intervalRef.current = window.setInterval(() => {
         console.log('🔄 Auto-refreshing watchlist data...');
         fetchQuotes(undefined, true);
       }, AUTO_REFRESH_INTERVAL);

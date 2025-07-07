@@ -27,19 +27,7 @@ import { stockApi } from '../services/stockApi';
 import { aiApi } from '../services/aiApi';
 import { formatCompactCurrency, formatCurrency } from '../lib/utils';
 import { cn } from '../lib/utils';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  TooltipProps,
-} from 'recharts';
+// Removed unused recharts imports
 
 // Removed unused COLORS constant
 

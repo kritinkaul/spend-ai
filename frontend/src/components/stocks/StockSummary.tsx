@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { TrendingUp, TrendingDown, Volume2, DollarSign, Globe, Calendar, RefreshCw, AlertCircle, Building2, ArrowUp, ArrowDown, BarChart3 } from 'lucide-react';
+import { DollarSign, Globe, Calendar, RefreshCw, AlertCircle, Building2, ArrowUp, ArrowDown, BarChart3 } from 'lucide-react';
 import { stocksAPI, StockPrice, CompanyInfo } from '../../services/stockApi';
 import { getCompanyLogoUrl } from '../../utils/companyLogos';
 

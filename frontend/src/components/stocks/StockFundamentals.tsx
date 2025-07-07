@@ -3,7 +3,7 @@ import { Building2, RefreshCw, AlertCircle, Globe, Calendar, DollarSign, Trendin
 import { stocksAPI, CompanyProfile, BasicFinancials } from '../../services/stockApi';
 import { getCompanyLogoUrl } from '../../utils/companyLogos';
 import StockSearchInput from './StockSearchInput';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart as RechartsPieChart, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 export default function StockFundamentals() {
   const [selectedStock, setSelectedStock] = useState({ symbol: 'AAPL', name: 'Apple Inc.' });
@@ -119,29 +119,9 @@ export default function StockFundamentals() {
     ].filter(item => item.value > 0);
   };
 
-  const getMarketCapData = () => {
-    if (!companyProfile?.marketCapitalization) return [];
-    
-    const marketCap = companyProfile.marketCapitalization;
-    const shareOutstanding = companyProfile.shareOutstanding || 0;
-    const pricePerShare = shareOutstanding > 0 ? marketCap / shareOutstanding : 0;
-    
-    return [
-      { name: 'Market Cap', value: marketCap, color: CHART_COLORS[0] },
-      { name: 'Share Value', value: pricePerShare * 1e6, color: CHART_COLORS[1] }, // Approximate calculation
-    ].filter(item => item.value > 0);
-  };
+  // Removed unused getMarketCapData function
 
-  const getPerformanceData = () => {
-    if (!basicFinancials?.metric) return [];
-    
-    const metrics = basicFinancials.metric;
-    return [
-      { name: '52W High', value: metrics['52WeekHigh'] || 0 },
-      { name: '52W Low', value: metrics['52WeekLow'] || 0 },
-      { name: '10D Avg Volume', value: (metrics['10DayAverageTradingVolume'] || 0) / 1e6 }, // Convert to millions
-    ].filter(item => item.value > 0);
-  };
+  // Removed unused getPerformanceData function
 
   if (isLoading) {
     return (

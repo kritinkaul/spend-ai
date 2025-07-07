@@ -24,7 +24,7 @@ export default function TickerSearch({
   
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const debounceRef = useRef<NodeJS.Timeout>();
+  const debounceRef = useRef<number>();
 
   // Debounced search function
   useEffect(() => {
@@ -39,7 +39,7 @@ export default function TickerSearch({
       return;
     }
 
-    debounceRef.current = setTimeout(async () => {
+    debounceRef.current = window.setTimeout(async () => {
       setIsSearching(true);
       setError(null);
 

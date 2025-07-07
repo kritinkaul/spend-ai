@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { TrendingUp, TrendingDown, Plus, Trash2, RefreshCw, DollarSign, TrendingDown as Loss, TrendingUp as Gain, PieChart } from 'lucide-react';
-import { stocksAPI, StockPrice } from '../../services/stockApi';
+import { stocksAPI } from '../../services/stockApi';
 
 interface PortfolioPosition {
   id: string;
