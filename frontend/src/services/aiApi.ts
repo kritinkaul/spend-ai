@@ -123,53 +123,7 @@ class AIApiService {
     }
   }
 
-  private parseAIResponse(response: string, symbol: string): AIInsight {
-    const now = new Date();
-    
-    // Extract sentiment
-    let sentiment: 'bullish' | 'bearish' | 'neutral' = 'neutral';
-    const sentimentMatch = response.toLowerCase().match(/sentiment:\s*(bullish|bearish|neutral)/);
-    if (sentimentMatch) {
-      sentiment = sentimentMatch[1] as 'bullish' | 'bearish' | 'neutral';
-    } else {
-      // Fallback sentiment extraction
-      sentiment = this.extractSentiment(response);
-    }
 
-    // Extract analysis
-    let analysis = '';
-    const analysisMatch = response.match(/analysis:\s*(.+?)(?:\n|confidence:|$)/is);
-    if (analysisMatch) {
-      analysis = analysisMatch[1].trim();
-    } else {
-      // Use the entire response if structured format not found
-      analysis = response.substring(0, 300);
-    }
-
-    // Extract confidence
-    let confidence = 75; // Default confidence
-    const confidenceMatch = response.match(/confidence:\s*(\d+)/i);
-    if (confidenceMatch) {
-      confidence = Math.min(100, Math.max(1, parseInt(confidenceMatch[1])));
-    }
-
-    // Generate title based on sentiment
-    const titles = {
-      bullish: `Positive Outlook for ${symbol}`,
-      bearish: `Cautious View on ${symbol}`,
-      neutral: `Mixed Signals for ${symbol}`
-    };
-
-    return {
-      id: `${symbol}-${now.getTime()}`,
-      type: sentiment,
-      title: titles[sentiment],
-      content: analysis,
-      confidence: confidence,
-      timestamp: now.toISOString(),
-      symbol: symbol
-    };
-  }
 
   private extractSentiment(text: string): 'bullish' | 'bearish' | 'neutral' {
     const lowerText = text.toLowerCase();

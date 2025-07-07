@@ -4,13 +4,9 @@ import {
   TrendingUp, 
   TrendingDown, 
   DollarSign, 
-  Calendar, 
   Target,
   AlertTriangle,
-  Lightbulb,
-  ArrowUpIcon,
-  ArrowDownIcon,
-  Loader2
+  Lightbulb
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -21,21 +17,33 @@ import {
   Tooltip, 
   ResponsiveContainer,
   LineChart,
-  Line,
-  TooltipProps
+  Line
 } from 'recharts';
 import { transactionService } from '../services/transactions';
-import { formatCurrency } from '../lib/utils';
 
-// Interface for insights
-interface InsightCard {
-  id: string;
-  type: 'positive' | 'negative' | 'neutral';
+// Interfaces for type safety
+interface Analytics {
+  total_spent: number;
+  total_earned: number;
+  avg_expense: number;
+}
+
+interface Category {
+  category: string;
+  total_amount: number;
+  transaction_count: number;
+}
+
+interface Insight {
+  id: number;
+  type: string;
   title: string;
   description: string;
-  value?: string;
-  icon: React.ComponentType<{ className?: string }>;
-  recommendation?: string;
+  category: string;
+  amount: number;
+  priority: string;
+  actionable: boolean;
+  actionItems: string[];
 }
 
 const generateInsights = (analytics: Analytics, categories: Category[]): Insight[] => {
@@ -209,7 +217,7 @@ export default function Insights() {
   if (error) {
     return (
       <div className="text-center py-8">
-        <p className="text-red-600">{error.message}</p>
+        <p className="text-red-600">Error loading insights</p>
         <button 
           onClick={() => window.location.reload()} 
           className="mt-4 btn btn-primary"

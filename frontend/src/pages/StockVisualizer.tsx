@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { TrendingUp, Search, BarChart3, Clock, AlertCircle, Star, History } from 'lucide-react';
+import { Search, BarChart3, Clock, AlertCircle, Star, History } from 'lucide-react';
 import TickerSearch from '../components/stocks/TickerSearch';
 import StockChart from '../components/stocks/StockChart';
 import StockSummary from '../components/stocks/StockSummary';
@@ -15,7 +15,6 @@ export default function StockVisualizer() {
   const [selectedStock, setSelectedStock] = useState<{ symbol: string; name: string } | null>(null);
   const [recentStocks, setRecentStocks] = useState<RecentStock[]>([]);
   const [marketStatus, setMarketStatus] = useState<{ is_market_open: boolean; market_state: string } | null>(null);
-  const [isLoadingMarket, setIsLoadingMarket] = useState(false);
 
   // Popular stocks to display initially
   const popularStocks = [
@@ -51,14 +50,11 @@ export default function StockVisualizer() {
   // Fetch market status
   useEffect(() => {
     const fetchMarketStatus = async () => {
-      setIsLoadingMarket(true);
       try {
-        const status = await stocksAPI.getMarketStatus();
-        setMarketStatus(status);
+        // Mock market status for now
+        setMarketStatus({ is_market_open: true, market_state: 'Market Open' });
       } catch (error) {
         console.error('Failed to fetch market status:', error);
-      } finally {
-        setIsLoadingMarket(false);
       }
     };
 
