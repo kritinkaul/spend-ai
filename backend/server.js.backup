@@ -1,0 +1,512 @@
+const express = require('express');
+const cors = require('cors');
+const helmet = require('helmet');
+const morgan = require('morgan');
+const compression = require('compression');
+const rateLimit = require('express-rate-limit');
+const path = require('path');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const sqlite3 = require('sqlite3');
+const fs = require('fs');
+const multer = require('multer');
+const { parse } = require('csv-parse');
+const pdf = require('pdf-parse');
+
+// Import authentication middleware
+const { authenticateToken } = require('./middleware/auth-mock'); // We'll create a mock for now
+
+// --- File Upload Setup ---
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir);
+}
+const storage = multer.memoryStorage(); // Use memory storage to handle file buffer
+const upload = multer({ storage: storage });
+
+// Database setup
+const dbPath = path.join(__dirname, 'data/spendai.db');
+const dbDir = path.dirname(dbPath);
+if (!fs.existsSync(dbDir)) {
+  fs.mkdirSync(dbDir, { recursive: true });
+}
+
+const db = new sqlite3.Database(dbPath, (err) => {
+  if (err) {
+    console.error('Error opening database:', err);
+  } else {
+    console.log('Connected to SQLite database');
+    initDatabase();
+  }
+});
+
+function initDatabase() {
+  db.run(`
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      email TEXT UNIQUE NOT NULL,
+      password TEXT NOT NULL,
+      name TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS transactions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      amount REAL NOT NULL,
+      description TEXT,
+      category TEXT,
+      date DATETIME DEFAULT CURRENT_TIMESTAMP,
+      type TEXT DEFAULT 'expense',
+      FOREIGN KEY (user_id) REFERENCES users (id)
+    )
+  `);
+
+  console.log('Database tables initialized');
+}
+
+const app = express();
+const PORT = process.env.PORT || 8000;
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+
+// Security middleware
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:"],
+    },
+  },
+}));
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use(limiter);
+
+// More specific CORS configuration
+const allowedOrigins = ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:3001', 'http://127.0.0.1:3001'];
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // Enable pre-flight for all routes
+
+// Body parsing middleware
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Compression middleware
+app.use(compression());
+
+// Logging middleware
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+} else {
+  app.use(morgan('combined'));
+}
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV,
+  });
+});
+
+// Auth routes
+app.post('/api/auth/register', async (req, res) => {
+  try {
+    const { email, password, name } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
+    }
+
+    // Check if user already exists
+    db.get('SELECT * FROM users WHERE email = ?', [email], async (err, user) => {
+      if (err) {
+        console.error('Database error:', err);
+        return res.status(500).json({ error: 'Database error' });
+      }
+
+      if (user) {
+        return res.status(400).json({ error: 'User already exists' });
+      }
+
+      // Hash password
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Insert new user
+      db.run(
+        'INSERT INTO users (email, password, name) VALUES (?, ?, ?)',
+        [email, hashedPassword, name || email],
+        function(err) {
+          if (err) {
+            console.error('Database error:', err);
+            return res.status(500).json({ error: 'Database error' });
+          }
+
+          const token = jwt.sign(
+            { userId: this.lastID, email },
+            JWT_SECRET,
+            { expiresIn: '24h' }
+          );
+
+          res.status(201).json({
+            message: 'User registered successfully',
+            token,
+            user: {
+              id: this.lastID,
+              email,
+              name: name || email
+            }
+          });
+        }
+      );
+    });
+  } catch (error) {
+    console.error('Registration error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
+    }
+
+    // Find user
+    db.get('SELECT * FROM users WHERE email = ?', [email], async (err, user) => {
+      if (err) {
+        console.error('Database error:', err);
+        return res.status(500).json({ error: 'Database error' });
+      }
+
+      if (!user) {
+        return res.status(401).json({ error: 'Invalid credentials' });
+      }
+
+      // Check password
+      const isValidPassword = await bcrypt.compare(password, user.password);
+      if (!isValidPassword) {
+        return res.status(401).json({ error: 'Invalid credentials' });
+      }
+
+      // Generate token
+      const token = jwt.sign(
+        { userId: user.id, email: user.email },
+        JWT_SECRET,
+        { expiresIn: '24h' }
+      );
+
+      res.json({
+        message: 'Login successful',
+        token,
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name
+        }
+      });
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// API documentation
+app.get('/api', (req, res) => {
+  res.json({
+    message: 'SpendAI API',
+    version: '1.0.0',
+    endpoints: {
+      auth: '/api/auth',
+      upload: '/api/upload',
+    },
+  });
+});
+
+// --- Helper Functions ---
+const parseCSVAndInsertTransactions = (filePath, userId, callback) => {
+  const transactions = [];
+  const parser = parse({
+    columns: true,
+    skip_empty_lines: true,
+    trim: true
+  });
+
+  parser.on('readable', () => {
+    let record;
+    while ((record = parser.read()) !== null) {
+      transactions.push(record);
+    }
+  });
+
+  parser.on('error', (err) => {
+    callback(err);
+  });
+
+  parser.on('end', () => {
+    if (transactions.length === 0) {
+      return callback(null, 0);
+    }
+
+    db.serialize(() => {
+      db.run('BEGIN TRANSACTION');
+      const stmt = db.prepare('INSERT INTO transactions (user_id, date, description, amount, type, category) VALUES (?, ?, ?, ?, ?, ?)');
+      let insertedCount = 0;
+
+      transactions.forEach(t => {
+        const date = t.Date || t.date;
+        const description = t.Description || t.description;
+        let amount = parseFloat(t.Amount || t.amount);
+        let type = t.Type || t.type;
+        
+        if (!date || !description || isNaN(amount)) {
+          console.warn('Skipping invalid record:', t);
+          return;
+        }
+
+        // Infer type if not present
+        if (!type) {
+          type = amount >= 0 ? 'CREDIT' : 'DEBIT';
+        }
+
+        // Make amount positive for consistency, type determines direction
+        if (type.toUpperCase() === 'DEBIT') {
+          amount = -Math.abs(amount);
+        } else {
+          amount = Math.abs(amount);
+        }
+        
+        const category = 'Uncategorized'; // Default category
+
+        stmt.run(userId, date, description, amount, type.toUpperCase(), category, (err) => {
+          if (!err) {
+            insertedCount++;
+          }
+        });
+      });
+
+      stmt.finalize((err) => {
+        if (err) {
+          db.run('ROLLBACK');
+          return callback(err);
+        }
+        db.run('COMMIT');
+        callback(null, insertedCount);
+      });
+    });
+  });
+
+  fs.createReadStream(filePath).pipe(parser);
+};
+
+const parsePdfAndInsertTransactions = async (buffer, userId, callback) => {
+  try {
+    const data = await pdf(buffer);
+    const text = data.text;
+    const transactions = [];
+
+    // Very basic regex to find transaction-like lines.
+    // This will need significant improvement for real-world bank statements.
+    // Format: (Date) (Description) (Amount)
+    const transactionRegex = /(\d{1,2}\/\d{1,2}\/\d{2,4})\s+(.+?)\s+([-\$]?\d{1,3}(?:,?\d{3})*\.\d{2})/g;
+    
+    let match;
+    while ((match = transactionRegex.exec(text)) !== null) {
+      const amountStr = match[3].replace(/[\$,]/g, '');
+      const amount = parseFloat(amountStr);
+      
+      transactions.push({
+        date: new Date(match[1]).toISOString().split('T')[0], // Format as YYYY-MM-DD
+        description: match[2].trim(),
+        amount: amount,
+        type: amount >= 0 ? 'CREDIT' : 'DEBIT'
+      });
+    }
+
+    if (transactions.length === 0) {
+      return callback(null, 0);
+    }
+
+    db.serialize(() => {
+      db.run('BEGIN TRANSACTION');
+      const stmt = db.prepare('INSERT INTO transactions (user_id, date, description, amount, type, category) VALUES (?, ?, ?, ?, ?, ?)');
+      let insertedCount = 0;
+
+      transactions.forEach(t => {
+        stmt.run(userId, t.date, t.description, t.amount, t.type, 'Uncategorized', (err) => {
+          if (!err) {
+            insertedCount++;
+          }
+        });
+      });
+
+      stmt.finalize((err) => {
+        if (err) {
+          db.run('ROLLBACK');
+          return callback(err);
+        }
+        db.run('COMMIT');
+        callback(null, insertedCount);
+      });
+    });
+  } catch (error) {
+    callback(error);
+  }
+};
+
+// --- Upload Endpoint ---
+app.post('/api/upload', authenticateToken, upload.single('transactions'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded.' });
+    }
+
+    const userId = req.user.userId;
+    const file = req.file;
+
+    const callback = (error, count) => {
+      if (error) {
+        console.error('Processing error:', error);
+        return res.status(500).json({ error: 'Failed to process file.' });
+      }
+      res.status(200).json({ message: `Successfully uploaded and inserted ${count} transactions.` });
+    };
+
+    if (file.mimetype === 'text/csv') {
+      // For CSV, we need to write the buffer to a temporary file for the stream parser
+      const tempFilePath = path.join(uploadDir, `temp-${Date.now()}.csv`);
+      fs.writeFile(tempFilePath, file.buffer, (err) => {
+        if (err) return callback(err);
+        parseCSVAndInsertTransactions(tempFilePath, userId, (err, count) => {
+          // Clean up temp file
+          fs.unlink(tempFilePath, () => {}); 
+          callback(err, count);
+        });
+      });
+    } else if (file.mimetype === 'application/pdf') {
+      parsePdfAndInsertTransactions(file.buffer, userId, callback);
+    } else {
+      res.status(400).json({ error: 'Unsupported file type. Please upload a CSV or PDF.' });
+    }
+  } catch (error) {
+    console.error('Upload error:', error);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+
+// --- Transaction Data Endpoints ---
+app.get('/api/transactions', authenticateToken, (req, res) => {
+  const userId = req.user.userId;
+  
+  db.all('SELECT * FROM transactions WHERE user_id = ? ORDER BY date DESC', [userId], (err, transactions) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    
+    res.json({ transactions });
+  });
+});
+
+app.get('/api/analytics', authenticateToken, (req, res) => {
+  const userId = req.user.userId;
+  
+  // Get basic analytics
+  db.get(`
+    SELECT 
+      COUNT(*) as total_transactions,
+      SUM(CASE WHEN type = 'DEBIT' THEN ABS(amount) ELSE 0 END) as total_spent,
+      SUM(CASE WHEN type = 'CREDIT' THEN amount ELSE 0 END) as total_earned,
+      AVG(CASE WHEN type = 'DEBIT' THEN ABS(amount) ELSE NULL END) as avg_expense,
+      MIN(date) as earliest_date,
+      MAX(date) as latest_date
+    FROM transactions 
+    WHERE user_id = ?
+  `, [userId], (err, analytics) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    
+    res.json({ analytics });
+  });
+});
+
+app.get('/api/transactions/categories', authenticateToken, (req, res) => {
+  const userId = req.user.userId;
+  
+  // Get spending by category (using description as category for now)
+  db.all(`
+    SELECT 
+      description as category,
+      COUNT(*) as transaction_count,
+      SUM(ABS(amount)) as total_amount
+    FROM transactions 
+    WHERE user_id = ? AND type = 'DEBIT'
+    GROUP BY description
+    ORDER BY total_amount DESC
+    LIMIT 10
+  `, [userId], (err, categories) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    
+    res.json({ categories });
+  });
+});
+
+// 404 handler
+app.use('*', (req, res) => {
+  res.status(404).json({ error: 'Route not found' });
+});
+
+// Error handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Something went wrong!' });
+});
+
+// Start server
+app.listen(PORT, () => {
+  console.log(`🚀 SpendAI Backend Server running on port ${PORT}`);
+  console.log(`📊 Environment: ${process.env.NODE_ENV}`);
+  console.log(`🔗 Health check: http://localhost:${PORT}/health`);
+  console.log(`📚 API docs: http://localhost:${PORT}/api`);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('Server is shutting down');
+  process.exit(0);
+});
