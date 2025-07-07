@@ -3,7 +3,7 @@ import { Search, BarChart3, Clock, AlertCircle, Star, History } from 'lucide-rea
 import TickerSearch from '../components/stocks/TickerSearch';
 import StockChart from '../components/stocks/StockChart';
 import StockSummary from '../components/stocks/StockSummary';
-import { stocksAPI } from '../utils/stocksAPI';
+// Removed unused stocksAPI import
 
 interface RecentStock {
   symbol: string;

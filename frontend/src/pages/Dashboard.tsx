@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { 
@@ -41,7 +41,7 @@ import {
   TooltipProps,
 } from 'recharts';
 
-const COLORS = ['#4ECDC4', '#FF6B6B', '#45B7D1', '#96CEB4', '#FFEAA7'];
+// Removed unused COLORS constant
 
 const StatCard = ({ stat, index }: { stat: any, index: number }) => (
   <div 

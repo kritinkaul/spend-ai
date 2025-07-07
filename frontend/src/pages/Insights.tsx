@@ -2,23 +2,12 @@ import { useState, useMemo } from 'react';
 import { useQuery } from 'react-query';
 import { 
   TrendingUp, 
-  TrendingDown, 
   DollarSign, 
   Target,
   AlertTriangle,
   Lightbulb
 } from 'lucide-react';
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer,
-  LineChart,
-  Line
-} from 'recharts';
+// Removed unused recharts imports
 import { transactionService } from '../services/transactions';
 
 // Interfaces for type safety
@@ -153,7 +142,7 @@ const generateInsights = (analytics: Analytics, categories: Category[]): Insight
 };
 
 export default function Insights() {
-  const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'quarter'>('month');
+  // Removed unused selectedPeriod state
 
   const { data: analytics, isLoading: analyticsLoading, error: analyticsError } = useQuery(
     'analytics',

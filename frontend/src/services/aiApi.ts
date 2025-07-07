@@ -125,19 +125,7 @@ class AIApiService {
 
 
 
-  private extractSentiment(text: string): 'bullish' | 'bearish' | 'neutral' {
-    const lowerText = text.toLowerCase();
-    
-    const bullishKeywords = ['positive', 'bullish', 'growth', 'increase', 'strong', 'buy', 'outperform', 'upward', 'rise', 'gain'];
-    const bearishKeywords = ['negative', 'bearish', 'decline', 'decrease', 'weak', 'sell', 'underperform', 'downward', 'fall', 'loss'];
-    
-    const bullishCount = bullishKeywords.filter(keyword => lowerText.includes(keyword)).length;
-    const bearishCount = bearishKeywords.filter(keyword => lowerText.includes(keyword)).length;
-    
-    if (bullishCount > bearishCount) return 'bullish';
-    if (bearishCount > bullishCount) return 'bearish';
-    return 'neutral';
-  }
+
 
   // Fallback insights for when API is unavailable
   getFallbackInsight(symbol: string, errorMessage?: string): AIInsight {

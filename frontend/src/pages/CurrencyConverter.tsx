@@ -17,9 +17,7 @@ import {
 import {
   getLatestRates,
   formatCurrency,
-  getCurrencyInfo,
   CURRENCIES,
-  type CurrencyRate,
 } from '../utils/currency';
 
 interface ConversionHistory {
@@ -353,7 +351,7 @@ export default function CurrencyConverter() {
                       <X className="h-4 w-4 mx-auto" />
                     </button>
 
-                    {[7, 8, 9].map(num => (
+                    {[7, 8, 9].map((num) => (
                       <button key={num} onClick={() => inputNumber(String(num))} className="p-3 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-500 transition-colors">
                         {num}
                       </button>

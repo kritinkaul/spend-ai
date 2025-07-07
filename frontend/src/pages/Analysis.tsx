@@ -1,9 +1,8 @@
 import { useQuery } from 'react-query';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, TooltipProps, LineChart, Line, Area, AreaChart } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, TooltipProps, Area, AreaChart } from 'recharts';
 import { transactionService } from '../services/transactions';
-import { aiApi } from '../services/aiApi';
 import { formatCurrency } from '../lib/utils';
-import { Loader2, AlertTriangle, PieChart as PieChartIcon, BarChart3, TrendingUp, TrendingDown, Repeat, Lightbulb, RefreshCw, Calendar, DollarSign, Target, Activity } from 'lucide-react';
+import { Loader2, AlertTriangle, PieChart as PieChartIcon, BarChart3, TrendingUp, Repeat, Lightbulb, RefreshCw, DollarSign, Target, Activity } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { cn } from '../lib/utils';
 
@@ -53,23 +52,7 @@ const AIInsightsCard = ({ transactions, categories }: { transactions: any[], cat
       const topCategory = categories[0];
       const transactionCount = transactions.length;
       
-      const prompt = `Analyze this spending data and provide insights:
-      
-Total Spent: ${formatCurrency(totalSpent)}
-Top Category: ${topCategory?.category} (${formatCurrency(Math.abs(topCategory?.total_amount || 0))})
-Transaction Count: ${transactionCount}
-Categories: ${categories.map(c => `${c.category}: ${formatCurrency(Math.abs(c.total_amount))}`).join(', ')}
-
-Provide:
-1. Key spending patterns you notice
-2. Areas for potential savings
-3. Recommendations for better financial management
-4. Risk assessment (low/medium/high)
-
-Keep it concise and actionable.`;
-
-             // Generate a simple analysis prompt for spending patterns
-       const analysisPrompt = `Based on spending data: Total: ${formatCurrency(totalSpent)}, Top category: ${topCategory?.category}, provide brief financial insights and recommendations.`;
+      // Generate a simple analysis based on spending patterns
        
        // For now, return a basic analysis since the AI API method is private
        return `Financial Analysis Summary:
