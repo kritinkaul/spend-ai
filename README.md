@@ -36,9 +36,21 @@ A modern, full-stack personal finance application that uses AI to analyze spendi
 - **Stock Data** - Real-time market information and analysis
 - **Responsive Design** - Works perfectly on all devices
 
+## 🚀 Deployment Status
+
+- ✅ **Frontend**: Ready for Vercel deployment
+- ✅ **Backend**: Ready for Railway deployment
+- ✅ **Database**: PostgreSQL configuration ready
+- 🔄 **Live Demo**: In progress (will be available at deployment completion)
+
 ## 🚀 Quick Start
 
-### Using the Simple Start Script (Recommended)
+### Live Demo
+**🌐 [Live Demo](https://your-app.vercel.app)** *(Coming soon after deployment)*
+
+### Local Development
+
+#### Using the Simple Start Script (Recommended)
 
 ```bash
 # Clone the repository
@@ -100,6 +112,7 @@ spend-ai/
 
 1. **Open the App**: Visit http://localhost:3000
 2. **Upload Data**: Go to the Upload page and drag & drop your bank statement (CSV or PDF)
+
 3. **View Analytics**: Check the Dashboard for spending insights and trends
 4. **Explore Categories**: See your spending breakdown by category in Analysis
 5. **Monitor Stocks**: Use the Stocks page for market data and analysis
