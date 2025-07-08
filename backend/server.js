@@ -20,7 +20,7 @@ const PORT = process.env.PORT || 8000;
 
 // Middleware
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || ['http://localhost:3000', 'http://localhost:3002', 'http://localhost:3003'], // Allow frontend on multiple ports
+  origin: process.env.CORS_ORIGIN || ['http://localhost:3000', 'http://localhost:3002', 'http://localhost:3003', /vercel\.app$/], // Allow frontend on multiple ports and Vercel
   credentials: true
 }));
 app.use(express.json());
