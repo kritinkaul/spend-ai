@@ -18,11 +18,34 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 8000;
 
-// Middleware
-app.use(cors({
-  origin: process.env.CORS_ORIGIN || ['http://localhost:3000', 'http://localhost:3002', 'http://localhost:3003', /vercel\.app$/], // Allow frontend on multiple ports and Vercel
+// Middleware - CORS Configuration
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // Development origins
+    const developmentOrigins = [
+      'http://localhost:3000',
+      'http://localhost:3002', 
+      'http://localhost:3003'
+    ];
+    
+    // Check if origin is allowed
+    if (developmentOrigins.includes(origin) || 
+        origin.endsWith('.vercel.app') || 
+        (process.env.CORS_ORIGIN && process.env.CORS_ORIGIN.split(',').includes(origin))) {
+      return callback(null, true);
+    }
+    
+    // Log rejected origins for debugging
+    console.log('❌ CORS rejected origin:', origin);
+    callback(new Error('Not allowed by CORS'));
+  },
   credentials: true
-}));
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
