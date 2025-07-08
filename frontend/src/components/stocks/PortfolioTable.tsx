@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import { TrendingUp, TrendingDown, Plus, Trash2, RefreshCw, DollarSign, TrendingDown as Loss, TrendingUp as Gain, PieChart } from 'lucide-react';
+import { TrendingUp, TrendingDown, Plus, Trash2, RefreshCw, DollarSign, TrendingDown as Loss, TrendingUp as Gain, PieChart, Star } from 'lucide-react';
 import { stocksAPI } from '../../services/stockApi';
+import StockSearchInput from './StockSearchInput';
 
 interface PortfolioPosition {
   id: string;
@@ -15,18 +16,62 @@ interface PortfolioPosition {
 }
 
 interface AddPositionForm {
-  symbol: string;
-  name: string;
+  selectedStock: { symbol: string; name: string } | null;
   shares: string;
   avgCost: string;
 }
+
+// Top 5 biggest companies by market cap for quick selection
+const TOP_STOCKS = [
+  { symbol: 'AAPL', name: 'Apple Inc.' },
+  { symbol: 'MSFT', name: 'Microsoft Corporation' },
+  { symbol: 'GOOGL', name: 'Alphabet Inc.' },
+  { symbol: 'AMZN', name: 'Amazon.com Inc.' },
+  { symbol: 'TSLA', name: 'Tesla Inc.' }
+];
+
+// Sample portfolio positions for demo/first-time users
+const SAMPLE_PORTFOLIO: PortfolioPosition[] = [
+  {
+    id: 'AAPL-sample',
+    symbol: 'AAPL',
+    name: 'Apple Inc.',
+    shares: 100,
+    avgCost: 102.00,
+    currentPrice: 0, // Will be fetched live
+    change: 0,
+    changePercent: 0,
+    lastUpdated: 0
+  },
+  {
+    id: 'MCD-sample',
+    symbol: 'MCD',
+    name: 'McDonald\'s Corp.',
+    shares: 12,
+    avgCost: 321.00,
+    currentPrice: 0, // Will be fetched live
+    change: 0,
+    changePercent: 0,
+    lastUpdated: 0
+  },
+  {
+    id: 'MSFT-sample',
+    symbol: 'MSFT',
+    name: 'Microsoft Corporation',
+    shares: 25,
+    avgCost: 380.50,
+    currentPrice: 0, // Will be fetched live
+    change: 0,
+    changePercent: 0,
+    lastUpdated: 0
+  }
+];
 
 export default function PortfolioTable() {
   const [portfolio, setPortfolio] = useState<PortfolioPosition[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [addForm, setAddForm] = useState<AddPositionForm>({
-    symbol: '',
-    name: '',
+    selectedStock: null,
     shares: '',
     avgCost: ''
   });
@@ -34,10 +79,10 @@ export default function PortfolioTable() {
   const [error, setError] = useState<string | null>(null);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
 
-  // Auto-refresh interval (1 minute)
-  const AUTO_REFRESH_INTERVAL = 60000; // 1 minute
+  // Auto-refresh interval (2 minutes)
+  const AUTO_REFRESH_INTERVAL = 120000; // 2 minutes
 
-  // Load portfolio from localStorage
+  // Load portfolio from localStorage or use sample data
   useEffect(() => {
     const savedPortfolio = localStorage.getItem('stock-portfolio');
     if (savedPortfolio) {
@@ -57,8 +102,13 @@ export default function PortfolioTable() {
         setPortfolio(formattedPortfolio);
       } catch (error) {
         console.error('Error parsing saved portfolio:', error);
-        setPortfolio([]);
+        // If parsing fails, load sample data
+        setPortfolio(SAMPLE_PORTFOLIO);
       }
+    } else {
+      // If no saved portfolio, load sample data for demo
+      console.log('📊 Loading sample portfolio for demo');
+      setPortfolio(SAMPLE_PORTFOLIO);
     }
   }, []);
 
@@ -148,8 +198,8 @@ export default function PortfolioTable() {
 
   // Add position to portfolio
   const handleAddPosition = async () => {
-    if (!addForm.symbol || !addForm.shares || !addForm.avgCost) {
-      setError('Please fill in all required fields');
+    if (!addForm.selectedStock || !addForm.shares || !addForm.avgCost) {
+      setError('Please select a stock and fill in all required fields');
       return;
     }
 
@@ -161,22 +211,22 @@ export default function PortfolioTable() {
       return;
     }
 
-    const upperSymbol = addForm.symbol.toUpperCase();
+    const { symbol, name } = addForm.selectedStock;
 
     // Check if position already exists
-    if (portfolio.some(item => item.symbol === upperSymbol)) {
-      setError(`Position for ${upperSymbol} already exists in your portfolio`);
+    if (portfolio.some(item => item.symbol === symbol)) {
+      setError(`Position for ${symbol} already exists in your portfolio`);
       return;
     }
 
     try {
-      // Fetch current quote to validate symbol and get company name
-      const quote = await stocksAPI.getStockPrice(upperSymbol);
+      // Fetch current quote to get live price data
+      const quote = await stocksAPI.getStockPrice(symbol);
       
       const newPosition: PortfolioPosition = {
-        id: `${upperSymbol}-${Date.now()}`,
-        symbol: upperSymbol,
-        name: addForm.name || `${upperSymbol} Corp.`,
+        id: `${symbol}-${Date.now()}`,
+        symbol,
+        name,
         shares,
         avgCost,
         currentPrice: quote.price,
@@ -186,19 +236,39 @@ export default function PortfolioTable() {
       };
 
       setPortfolio(prev => [...prev, newPosition]);
-      setAddForm({ symbol: '', name: '', shares: '', avgCost: '' });
+      setAddForm({ selectedStock: null, shares: '', avgCost: '' });
       setShowAddForm(false);
       setError(null);
-      console.log('✅ Added position to portfolio:', upperSymbol);
+      console.log('✅ Added position to portfolio:', symbol);
     } catch (error) {
       console.error('❌ Error adding position:', error);
-      setError(`Failed to add ${upperSymbol}. Please check the symbol and try again.`);
+      setError(`Failed to add ${symbol}. Please try again.`);
     }
   };
 
   // Remove position from portfolio
   const handleRemovePosition = (id: string) => {
     setPortfolio(prev => prev.filter(item => item.id !== id));
+  };
+
+  // Clear entire portfolio
+  const handleClearPortfolio = () => {
+    if (window.confirm('Are you sure you want to clear your entire portfolio? This action cannot be undone.')) {
+      setPortfolio([]);
+      localStorage.removeItem('stock-portfolio');
+      console.log('🗑️ Portfolio cleared');
+    }
+  };
+
+  // Load sample portfolio again
+  const handleLoadSamplePortfolio = () => {
+    if (portfolio.length > 0) {
+      if (!window.confirm('This will replace your current portfolio with sample data. Continue?')) {
+        return;
+      }
+    }
+    setPortfolio(SAMPLE_PORTFOLIO);
+    console.log('📊 Sample portfolio loaded');
   };
 
   // Calculate portfolio metrics
@@ -248,7 +318,7 @@ export default function PortfolioTable() {
             )}
           </div>
           
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <button
               onClick={handleManualRefresh}
               disabled={isLoading}
@@ -257,6 +327,24 @@ export default function PortfolioTable() {
               <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
               Refresh
             </button>
+
+            {portfolio.length === 0 ? (
+              <button
+                onClick={handleLoadSamplePortfolio}
+                className="flex items-center gap-2 px-3 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
+              >
+                <Star className="h-4 w-4" />
+                Load Demo
+              </button>
+            ) : (
+              <button
+                onClick={handleClearPortfolio}
+                className="flex items-center gap-2 px-3 py-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
+              >
+                <Trash2 className="h-4 w-4" />
+                Clear All
+              </button>
+            )}
             
             <button
               onClick={() => setShowAddForm(true)}
@@ -346,29 +434,50 @@ export default function PortfolioTable() {
           <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-3">Add New Position</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Symbol *
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Select Stock *
                 </label>
-                <input
-                  type="text"
-                  value={addForm.symbol}
-                  onChange={(e) => setAddForm(prev => ({ ...prev, symbol: e.target.value.toUpperCase() }))}
-                  placeholder="AAPL"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                
+                {/* Popular Stocks Quick Selection */}
+                <div className="mb-3">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Popular choices:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {TOP_STOCKS.map((stock) => (
+                      <button
+                        key={stock.symbol}
+                        onClick={() => setAddForm(prev => ({ ...prev, selectedStock: stock }))}
+                        className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs border transition-colors ${
+                          addForm.selectedStock?.symbol === stock.symbol
+                            ? 'bg-blue-100 dark:bg-blue-900 border-blue-300 dark:border-blue-600 text-blue-700 dark:text-blue-300'
+                            : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
+                        }`}
+                      >
+                        <Star className="h-3 w-3" />
+                        {stock.symbol}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Search Input */}
+                <StockSearchInput
+                  onSelect={(symbol, name) => setAddForm(prev => ({ ...prev, selectedStock: { symbol, name } }))}
+                  placeholder="Or search for any stock..."
+                  className="w-full"
                 />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Company Name
-                </label>
-                <input
-                  type="text"
-                  value={addForm.name}
-                  onChange={(e) => setAddForm(prev => ({ ...prev, name: e.target.value }))}
-                  placeholder="Apple Inc."
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                />
+                
+                {/* Selected Stock Display */}
+                {addForm.selectedStock && (
+                  <div className="mt-2 p-2 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-700 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <div className="h-2 w-2 bg-green-500 rounded-full"></div>
+                      <span className="text-sm text-green-700 dark:text-green-300">
+                        Selected: <strong>{addForm.selectedStock.symbol}</strong> - {addForm.selectedStock.name}
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -409,7 +518,7 @@ export default function PortfolioTable() {
               <button
                 onClick={() => {
                   setShowAddForm(false);
-                  setAddForm({ symbol: '', name: '', shares: '', avgCost: '' });
+                  setAddForm({ selectedStock: null, shares: '', avgCost: '' });
                   setError(null);
                 }}
                 className="px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors"

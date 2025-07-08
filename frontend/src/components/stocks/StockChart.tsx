@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Calendar, TrendingUp, TrendingDown, RefreshCw, AlertCircle } from 'lucide-react';
-import { stocksAPI, HistoricalData, IntradayData, TimeRange } from '../../utils/stocksAPI';
+import { stocksAPI, HistoricalData } from '../../services/stockApi';
 
 interface StockChartProps {
   symbol: string;
@@ -17,8 +17,10 @@ interface ChartData {
   fullDateTime: string;
 }
 
+type TimeRange = '1D' | '1M' | '6M' | '1Y' | '5Y';
+
 const timeRanges: { value: TimeRange; label: string; description: string }[] = [
-  { value: '1D', label: '1D', description: 'Today (5-min intervals)' },
+  { value: '1D', label: '1D', description: 'Today' },
   { value: '1M', label: '1M', description: 'Past Month' },
   { value: '6M', label: '6M', description: 'Past 6 Months' },
   { value: '1Y', label: '1Y', description: 'Past Year' },
@@ -31,6 +33,7 @@ export default function StockChart({ symbol, companyName, className = "" }: Stoc
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [priceChange, setPriceChange] = useState<{ amount: number; percent: number } | null>(null);
+  const [isUsingMockData, setIsUsingMockData] = useState(false);
 
   // Process data for chart display
   const processedData = useMemo(() => {
@@ -93,6 +96,41 @@ export default function StockChart({ symbol, companyName, className = "" }: Stoc
     }
   };
 
+  // Generate realistic mock data when API is unavailable
+  const generateMockData = (range: TimeRange, basePrice: number = 200): ChartData[] => {
+    let days = 30;
+    switch (range) {
+      case '1D': days = 1; break;
+      case '1M': days = 30; break;
+      case '6M': days = 180; break;
+      case '1Y': days = 365; break;
+      case '5Y': days = 1825; break;
+    }
+
+    const dataPoints: ChartData[] = [];
+    const currentDate = new Date();
+    let currentPrice = basePrice;
+
+    for (let i = days; i >= 0; i--) {
+      const date = new Date(currentDate.getTime() - i * 24 * 60 * 60 * 1000);
+      
+      // Add some realistic price movement
+      const randomChange = (Math.random() - 0.5) * 0.05; // ±2.5% random movement
+      const trendFactor = Math.sin((days - i) / days * Math.PI) * 0.02; // Some trend
+      currentPrice *= (1 + randomChange + trendFactor);
+      
+      dataPoints.push({
+        datetime: date.toISOString().split('T')[0],
+        price: Math.max(1, currentPrice), // Ensure positive price
+        volume: Math.floor(Math.random() * 10000000), // Random volume
+        displayTime: formatDateTime(date.toISOString(), range),
+        fullDateTime: date.toLocaleString(),
+      });
+    }
+
+    return dataPoints;
+  };
+
   // Fetch chart data
   const fetchChartData = async (range: TimeRange) => {
     setIsLoading(true);
@@ -101,38 +139,60 @@ export default function StockChart({ symbol, companyName, className = "" }: Stoc
     try {
       console.log(`🔄 Fetching ${range} data for ${symbol}`);
       
-      let data: (HistoricalData | IntradayData)[];
-      
-      if (range === '1D') {
-        // Get intraday data for current day
-        data = await stocksAPI.getIntradayData(symbol);
-      } else {
-        // Get historical data for other ranges
-        data = await stocksAPI.getHistoricalData(symbol, range);
+      // Try to use real API first
+      try {
+        const data = await stocksAPI.getHistoricalDataFormatted(symbol, range);
+        
+        if (data && data.length > 0) {
+          // Process real data for chart
+          const processedData: ChartData[] = data.map(item => ({
+            datetime: item.datetime,
+            price: item.close,
+            volume: item.volume,
+            displayTime: formatDateTime(item.datetime, range),
+            fullDateTime: new Date(item.datetime).toLocaleString(),
+          }));
+          
+          setChartData(processedData);
+          setPriceChange(calculatePriceChange(processedData));
+          setIsUsingMockData(false);
+          console.log(`✅ Successfully loaded ${processedData.length} real data points for ${symbol}`);
+          return;
+        }
+      } catch (apiError) {
+        console.warn('⚠️ API unavailable, using mock data:', apiError);
       }
+
+      // Fallback to mock data
+      console.log(`📊 Generating mock chart data for ${symbol} (${range})`);
       
-      if (!data || data.length === 0) {
-        throw new Error('No data available for the selected time range');
+      // Try to get current price for more realistic mock data
+      let basePrice = 200;
+      try {
+        const currentData = await stocksAPI.getStockPrice(symbol);
+        basePrice = currentData.price || 200;
+      } catch (priceError) {
+        console.warn('⚠️ Could not get current price, using default');
+        // Use symbol-specific base prices for demo
+        const basePrices: Record<string, number> = {
+          'AAPL': 210, 'TSLA': 300, 'MSFT': 400, 'GOOGL': 180, 
+          'AMZN': 180, 'NVDA': 800, 'META': 350, 'MCD': 290
+        };
+        basePrice = basePrices[symbol] || 200;
       }
+
+      const mockData = generateMockData(range, basePrice);
+      setChartData(mockData);
+      setPriceChange(calculatePriceChange(mockData));
+      setIsUsingMockData(true);
       
-      // Process data for chart
-      const processedData: ChartData[] = data.map(item => ({
-        datetime: item.datetime,
-        price: item.close,
-        volume: item.volume,
-        displayTime: formatDateTime(item.datetime, range),
-        fullDateTime: new Date(item.datetime).toLocaleString(),
-      }));
-      
-      setChartData(processedData);
-      setPriceChange(calculatePriceChange(processedData));
-      
-      console.log(`✅ Successfully loaded ${processedData.length} data points for ${symbol}`);
+      console.log(`✅ Generated ${mockData.length} mock data points for ${symbol}`);
     } catch (error) {
       console.error('❌ Error fetching chart data:', error);
       setError(error instanceof Error ? error.message : 'Failed to load chart data');
       setChartData([]);
       setPriceChange(null);
+      setIsUsingMockData(false);
     } finally {
       setIsLoading(false);
     }
@@ -186,7 +246,7 @@ export default function StockChart({ symbol, companyName, className = "" }: Stoc
             
             {/* Price Change Indicator */}
             {priceChange && (
-              <div className="flex items-center gap-2 mt-2">
+              <div className="flex items-center gap-2 mt-2 flex-wrap">
                 {priceChange.amount >= 0 ? (
                   <TrendingUp className="h-4 w-4 text-green-600 dark:text-green-400" />
                 ) : (
@@ -203,6 +263,11 @@ export default function StockChart({ symbol, companyName, className = "" }: Stoc
                 <span className="text-xs text-gray-500 dark:text-gray-400">
                   {timeRanges.find(r => r.value === selectedRange)?.description}
                 </span>
+                {isUsingMockData && (
+                  <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-2 py-1 rounded-full">
+                    Demo Data
+                  </span>
+                )}
               </div>
             )}
           </div>

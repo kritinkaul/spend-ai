@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Search, X } from 'lucide-react';
-import { stocksAPI, StockSearchResult } from '../../utils/stocksAPI';
+import { stocksAPI, StockSearchResult } from '../../services/stockApi';
 
 interface StockSearchInputProps {
   onSelect: (symbol: string, name: string) => void;
@@ -32,7 +32,7 @@ export default function StockSearchInput({ onSelect, placeholder = "Search stock
 
       try {
         console.log('🔍 Searching for:', query);
-        const searchResults = await stocksAPI.searchStocks(query);
+        const searchResults = await stocksAPI.searchStocksFormatted(query);
         setResults(searchResults);
         setShowResults(searchResults.length > 0);
         

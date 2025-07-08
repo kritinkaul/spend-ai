@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { DollarSign, Globe, Calendar, RefreshCw, AlertCircle, Building2, ArrowUp, ArrowDown, BarChart3 } from 'lucide-react';
+import { DollarSign, Globe, Calendar, RefreshCw, AlertCircle, Building2, ArrowUp, ArrowDown, BarChart3, TrendingUp, TrendingDown } from 'lucide-react';
 import { stocksAPI, StockPrice, CompanyInfo } from '../../services/stockApi';
 import { getCompanyLogoUrl } from '../../utils/companyLogos';
 
@@ -204,16 +204,22 @@ export default function StockSummary({ symbol, companyName, className = "" }: St
             </div>
 
             {/* Price Range */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
-                <p className="text-xs text-gray-600 dark:text-gray-300">Day High</p>
-                <p className="text-lg font-semibold text-gray-900 dark:text-white">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl p-3 border border-green-200 dark:border-green-700 overflow-hidden">
+                <div className="flex items-center gap-1 mb-1">
+                  <TrendingUp className="h-3 w-3 text-green-600 dark:text-green-400 flex-shrink-0" />
+                  <p className="text-xs font-medium text-green-700 dark:text-green-300">Day High</p>
+                </div>
+                <p className="text-sm font-bold text-green-900 dark:text-green-100 leading-tight">
                   {formatCurrency(stockPrice.high)}
                 </p>
               </div>
-              <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
-                <p className="text-xs text-gray-600 dark:text-gray-300">Day Low</p>
-                <p className="text-lg font-semibold text-gray-900 dark:text-white">
+              <div className="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 rounded-xl p-3 border border-red-200 dark:border-red-700 overflow-hidden">
+                <div className="flex items-center gap-1 mb-1">
+                  <TrendingDown className="h-3 w-3 text-red-600 dark:text-red-400 flex-shrink-0" />
+                  <p className="text-xs font-medium text-red-700 dark:text-red-300">Day Low</p>
+                </div>
+                <p className="text-sm font-bold text-red-900 dark:text-red-100 leading-tight">
                   {formatCurrency(stockPrice.low)}
                 </p>
               </div>
@@ -221,24 +227,24 @@ export default function StockSummary({ symbol, companyName, className = "" }: St
           </div>
 
           {/* Additional Metrics */}
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
-                <div className="flex items-center gap-2 mb-1">
-                  <DollarSign className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                  <p className="text-xs text-gray-600 dark:text-gray-300">Open</p>
+          <div className="space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl p-3 border border-blue-200 dark:border-blue-700 overflow-hidden">
+                <div className="flex items-center gap-1 mb-1">
+                  <DollarSign className="h-3 w-3 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                  <p className="text-xs font-medium text-blue-700 dark:text-blue-300">Open</p>
                 </div>
-                <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                <p className="text-sm font-bold text-blue-900 dark:text-blue-100 leading-tight">
                   {formatCurrency(stockPrice.open)}
                 </p>
               </div>
               
-              <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
-                <div className="flex items-center gap-2 mb-1">
-                  <BarChart3 className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                  <p className="text-xs text-gray-600 dark:text-gray-300">Prev Close</p>
+              <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-xl p-3 border border-purple-200 dark:border-purple-700 overflow-hidden">
+                <div className="flex items-center gap-1 mb-1">
+                  <BarChart3 className="h-3 w-3 text-purple-600 dark:text-purple-400 flex-shrink-0" />
+                  <p className="text-xs font-medium text-purple-700 dark:text-purple-300">Prev Close</p>
                 </div>
-                <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                <p className="text-sm font-bold text-purple-900 dark:text-purple-100 leading-tight">
                   {formatCurrency(stockPrice.previous_close)}
                 </p>
               </div>
@@ -246,12 +252,12 @@ export default function StockSummary({ symbol, companyName, className = "" }: St
 
             {/* Company Info */}
             {companyInfo && (
-              <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
-                <div className="flex items-center gap-2 mb-2">
-                  <Building2 className="h-4 w-4 text-green-600 dark:text-green-400" />
-                  <p className="text-xs text-gray-600 dark:text-gray-300">Market Cap</p>
+              <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 rounded-xl p-3 border border-emerald-200 dark:border-emerald-700 overflow-hidden">
+                <div className="flex items-center gap-1 mb-1">
+                  <Building2 className="h-3 w-3 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+                  <p className="text-xs font-medium text-emerald-700 dark:text-emerald-300">Market Cap</p>
                 </div>
-                <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                <p className="text-sm font-bold text-emerald-900 dark:text-emerald-100 leading-tight">
                   {formatMarketCap(companyInfo.market_cap)}
                 </p>
               </div>

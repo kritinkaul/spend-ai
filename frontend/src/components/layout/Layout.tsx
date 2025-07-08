@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   Home, 
@@ -7,9 +7,10 @@ import {
   TrendingUp, 
   DollarSign,
   ArrowLeftRight,
-  LineChart
+  LineChart,
+  Menu,
+  X
 } from 'lucide-react';
-// Removed unused ThemeToggle import
 
 interface LayoutProps {
   children: ReactNode;
@@ -17,6 +18,7 @@ interface LayoutProps {
 
 export default function Layout({ children }: LayoutProps) {
   const location = useLocation();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const navigation = [
     { name: 'Dashboard', href: '/', icon: Home },
@@ -27,19 +29,45 @@ export default function Layout({ children }: LayoutProps) {
     { name: 'Converter', href: '/converter', icon: ArrowLeftRight },
   ];
 
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const closeSidebar = () => {
+    setIsSidebarOpen(false);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      {/* Sidebar */}
-      <div className="fixed inset-y-0 left-0 z-50 w-64 bg-white/95 backdrop-blur-sm shadow-2xl border-r border-gray-200/50 dark:bg-gray-800/95 dark:border-gray-700/50">
+      {/* Mobile overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={closeSidebar}
+        />
+      )}
+
+      {/* Sidebar - Desktop: fixed, Mobile: drawer */}
+      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white/95 backdrop-blur-sm shadow-2xl border-r border-gray-200/50 dark:bg-gray-800/95 dark:border-gray-700/50 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+        isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+      }`}>
         <div className="flex h-full flex-col">
           {/* Logo */}
-          <div className="flex h-20 items-center justify-center border-b border-gray-200/50 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 dark:border-gray-700/50">
+          <div className="flex h-16 lg:h-20 items-center justify-between px-4 border-b border-gray-200/50 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 dark:border-gray-700/50">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/25 transform hover:scale-110 hover:rotate-3 transition-all duration-300 border border-white/20">
-                <DollarSign className="h-6 w-6 text-white font-bold drop-shadow-lg" />
+              <div className="w-8 h-8 lg:w-10 lg:h-10 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/25 transform hover:scale-110 hover:rotate-3 transition-all duration-300 border border-white/20">
+                <DollarSign className="h-4 w-4 lg:h-6 lg:w-6 text-white font-bold drop-shadow-lg" />
               </div>
-              <h1 className="text-xl font-bold gradient-text dark:text-white">SpendAI</h1>
+              <h1 className="text-lg lg:text-xl font-bold gradient-text dark:text-white">SpendAI</h1>
             </div>
+            
+            {/* Close button for mobile */}
+            <button
+              onClick={closeSidebar}
+              className="lg:hidden p-2 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700 transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
           </div>
 
           {/* Navigation */}
@@ -50,6 +78,7 @@ export default function Layout({ children }: LayoutProps) {
                 <Link
                   key={item.name}
                   to={item.href}
+                  onClick={closeSidebar} // Close sidebar when navigating on mobile
                   className={`group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 hover:shadow-md ${
                     isActive
                       ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg'
@@ -69,8 +98,8 @@ export default function Layout({ children }: LayoutProps) {
           <div className="border-t border-gray-200/50 p-4 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 dark:border-gray-700/50">
             <div className="flex items-center p-3 rounded-xl bg-white/80 backdrop-blur-sm border border-gray-200/50 shadow-sm dark:bg-gray-700/80 dark:border-gray-600/50">
               <div className="flex-shrink-0">
-                <div className="h-10 w-10 rounded-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/20 transform hover:scale-105 transition-all duration-200 border border-white/30">
-                  <DollarSign className="h-5 w-5 text-white font-bold drop-shadow-md" />
+                <div className="h-8 w-8 lg:h-10 lg:w-10 rounded-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/20 transform hover:scale-105 transition-all duration-200 border border-white/30">
+                  <DollarSign className="h-4 w-4 lg:h-5 lg:w-5 text-white font-bold drop-shadow-md" />
                 </div>
               </div>
               <div className="ml-3 flex-1 min-w-0">
@@ -85,18 +114,39 @@ export default function Layout({ children }: LayoutProps) {
       </div>
 
       {/* Main content */}
-      <div className="pl-64">
-        {/* Header with theme toggle */}
-        <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200/50 dark:bg-gray-800/80 dark:border-gray-700/50">
+      <div className="lg:pl-64">
+        {/* Mobile Header with hamburger menu */}
+        <header className="lg:hidden bg-white/80 backdrop-blur-sm border-b border-gray-200/50 dark:bg-gray-800/80 dark:border-gray-700/50 sticky top-0 z-30">
+          <div className="flex h-16 items-center justify-between px-4 sm:px-6">
+            <button
+              onClick={toggleSidebar}
+              className="p-2 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700 transition-colors"
+            >
+              <Menu className="h-6 w-6" />
+            </button>
+            
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/25">
+                <DollarSign className="h-4 w-4 text-white font-bold" />
+              </div>
+              <h1 className="text-lg font-bold gradient-text dark:text-white">SpendAI</h1>
+            </div>
+            
+            <div className="w-10"> {/* Spacer for balance */}</div>
+          </div>
+        </header>
+
+        {/* Desktop Header */}
+        <header className="hidden lg:block bg-white/80 backdrop-blur-sm border-b border-gray-200/50 dark:bg-gray-800/80 dark:border-gray-700/50">
           <div className="mx-auto max-w-7xl px-6 sm:px-8 lg:px-10">
             <div className="flex h-16 items-center justify-end">
-              {/* Theme toggle temporarily removed */}
+              {/* Theme toggle space - temporarily removed */}
             </div>
           </div>
         </header>
 
-        <main className="py-8">
-          <div className="mx-auto max-w-7xl px-6 sm:px-8 lg:px-10">
+        <main className="py-4 sm:py-6 lg:py-8">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 xl:px-10">
             {children}
           </div>
         </main>

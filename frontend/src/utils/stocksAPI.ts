@@ -1,10 +1,10 @@
-// Stock API Service for Real-time and Historical Data using Marketstack API
-// Updated to use new API key from environment variable
+// Stock API Service for Real-time and Historical Data using Alpha Vantage API
+// Alpha Vantage provides reliable stock data with good free tier limits
 
-const API_KEY = import.meta.env.VITE_MARKETSTACK_API_KEY || "6f740961dcb6f26956f428a488bc085f";
+const API_KEY = import.meta.env.VITE_ALPHAVANTAGE_API_KEY || "C25T9SFRULAC82VY";
 
-// Using Marketstack API for comprehensive stock data
-const MARKETSTACK_BASE_URL = 'http://api.marketstack.com/v1';
+// Using Alpha Vantage API for comprehensive stock data
+const ALPHAVANTAGE_BASE_URL = 'https://www.alphavantage.co/query';
 
 // Enhanced cache for API responses with longer durations to reduce API calls
 const cache = new Map<string, { data: any; timestamp: number }>();
@@ -88,9 +88,9 @@ class StocksAPIService {
     console.log('🧹 Cache cleared');
   }
 
-  private async fetchFromAPI(endpoint: string, params: Record<string, string> = {}): Promise<any> {
-    const url = new URL(`${MARKETSTACK_BASE_URL}${endpoint}`);
-    url.searchParams.append('access_key', API_KEY);
+  private async fetchFromAPI(params: Record<string, string>): Promise<any> {
+    const url = new URL(ALPHAVANTAGE_BASE_URL);
+    url.searchParams.append('apikey', API_KEY);
     
     Object.entries(params).forEach(([key, value]) => {
       url.searchParams.append(key, value);
@@ -99,21 +99,21 @@ class StocksAPIService {
     const cacheKey = url.toString();
     let cacheDuration = STOCK_PRICE_CACHE_DURATION;
 
-    // Determine cache duration based on endpoint
-    if (endpoint.includes('eod')) {
+    // Determine cache duration based on function type
+    if (params.function?.includes('TIME_SERIES')) {
       cacheDuration = HISTORICAL_CACHE_DURATION;
-    } else if (endpoint.includes('tickers')) {
+    } else if (params.function?.includes('OVERVIEW') || params.function?.includes('SEARCH')) {
       cacheDuration = COMPANY_INFO_CACHE_DURATION;
     }
 
     // Check cache first
     const cachedData = this.getCachedData(cacheKey, cacheDuration);
     if (cachedData) {
-      console.log('✅ Using cached data for:', endpoint);
+      console.log('✅ Using cached data for:', params.function);
       return cachedData;
     }
 
-    console.log('🔄 Making API call:', endpoint, params);
+    console.log('🔄 Making Alpha Vantage API call:', params.function, params.symbol || params.keywords);
     
     try {
       const response = await fetch(url.toString(), {
@@ -124,12 +124,8 @@ class StocksAPIService {
       });
       
       if (!response.ok) {
-        if (response.status === 401) {
-          throw new Error('Invalid API key. Please check your VITE_MARKETSTACK_API_KEY.');
-        } else if (response.status === 429) {
-          throw new Error('Rate limit exceeded. Please wait before making more requests.');
-        } else if (response.status === 404) {
-          throw new Error('Stock symbol not found.');
+        if (response.status === 429) {
+          throw new Error('Rate limit exceeded. Alpha Vantage allows 25 requests per day on free tier.');
         } else {
           throw new Error(`API error: ${response.status} - ${response.statusText}`);
         }
@@ -137,17 +133,21 @@ class StocksAPIService {
       
       const data = await response.json();
       
-      // Check for API-specific errors
-      if (data.error) {
-        throw new Error(`API Error: ${data.error.message || data.error.code || 'Unknown error'}`);
+      // Check for Alpha Vantage specific errors
+      if (data['Error Message']) {
+        throw new Error(`API Error: ${data['Error Message']}`);
+      }
+      
+      if (data['Note']) {
+        throw new Error('Alpha Vantage API rate limit reached. Please try again in a minute.');
       }
       
       // Cache successful response
       this.setCachedData(cacheKey, data);
-      console.log('✅ API response received and cached');
+      console.log('✅ Alpha Vantage API response received and cached');
       return data;
     } catch (error) {
-      console.error('❌ API call failed:', error);
+      console.error('❌ Alpha Vantage API call failed:', error);
       
       // Try to return cached data even if expired, as fallback
       const staleData = cache.get(cacheKey);
@@ -162,33 +162,27 @@ class StocksAPIService {
 
   async getStockPrice(symbol: string): Promise<StockPrice> {
     try {
-      // Get latest EOD data for the symbol
-      const data = await this.fetchFromAPI('/eod', { 
-        symbols: symbol.toUpperCase(),
-        limit: '2' // Get last 2 days to calculate change
+      const data = await this.fetchFromAPI({
+        function: 'GLOBAL_QUOTE',
+        symbol: symbol.toUpperCase()
       });
       
-      if (!data || !data.data || data.data.length === 0) {
+      const quote = data['Global Quote'];
+      if (!quote) {
         throw new Error(`No data found for symbol: ${symbol}`);
       }
       
-      const latest = data.data[0];
-      const previous = data.data[1] || latest;
-      
-      const change = latest.close - previous.close;
-      const changePercent = previous.close > 0 ? (change / previous.close) * 100 : 0;
-      
       return {
-        symbol: latest.symbol,
-        price: parseFloat(latest.close) || 0,
-        change: parseFloat(change.toFixed(2)) || 0,
-        change_percent: parseFloat(changePercent.toFixed(2)) || 0,
-        volume: parseInt(latest.volume) || 0,
-        high: parseFloat(latest.high) || 0,
-        low: parseFloat(latest.low) || 0,
-        open: parseFloat(latest.open) || 0,
-        previous_close: parseFloat(previous.close) || 0,
-        timestamp: latest.date || new Date().toISOString(),
+        symbol: quote['01. symbol'],
+        price: parseFloat(quote['05. price']) || 0,
+        change: parseFloat(quote['09. change']) || 0,
+        change_percent: parseFloat(quote['10. change percent'].replace('%', '')) || 0,
+        volume: parseInt(quote['06. volume']) || 0,
+        high: parseFloat(quote['03. high']) || 0,
+        low: parseFloat(quote['04. low']) || 0,
+        open: parseFloat(quote['02. open']) || 0,
+        previous_close: parseFloat(quote['08. previous close']) || 0,
+        timestamp: quote['07. latest trading day'] || new Date().toISOString(),
       };
     } catch (error) {
       console.error(`❌ Failed to fetch stock price for ${symbol}:`, error);
@@ -198,64 +192,59 @@ class StocksAPIService {
 
   async getHistoricalData(symbol: string, range: TimeRange): Promise<HistoricalData[]> {
     try {
-      const now = new Date();
-      const endDate = now.toISOString().split('T')[0];
+      let functionType = 'TIME_SERIES_DAILY';
+      let timeSeriesKey = 'Time Series (Daily)';
       
-      let startDate: string;
-      let limit: string;
-      
-      switch (range) {
-        case '1D':
-          // For intraday, we'll try the intraday endpoint
-          try {
-            return await this.getIntradayData(symbol);
-          } catch (error) {
-            // Fallback to last 5 days of EOD data
-            startDate = new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-            limit = '5';
-            break;
-          }
-        case '1M':
-          startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-          limit = '30';
-          break;
-        case '6M':
-          startDate = new Date(now.getTime() - 180 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-          limit = '180';
-          break;
-        case '1Y':
-          startDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-          limit = '365';
-          break;
-        case '5Y':
-          startDate = new Date(now.getTime() - 5 * 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-          limit = '1000';
-          break;
-        default:
-          startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-          limit = '30';
+      // For intraday data (1D), use different endpoint
+      if (range === '1D') {
+        return await this.getIntradayData(symbol);
       }
 
-      const data = await this.fetchFromAPI('/eod', {
-        symbols: symbol.toUpperCase(),
-        date_from: startDate,
-        date_to: endDate,
-        limit,
-        sort: 'ASC'
+      const data = await this.fetchFromAPI({
+        function: functionType,
+        symbol: symbol.toUpperCase(),
+        outputsize: range === '5Y' ? 'full' : 'compact' // full gives 20+ years, compact gives 100 days
       });
       
-      if (!data || !data.data || !Array.isArray(data.data)) {
+      const timeSeries = data[timeSeriesKey];
+      if (!timeSeries) {
         throw new Error(`No historical data found for ${symbol}`);
       }
 
-      return data.data.map((item: any) => ({
-        datetime: item.date,
-        open: parseFloat(item.open),
-        high: parseFloat(item.high),
-        low: parseFloat(item.low),
-        close: parseFloat(item.close),
-        volume: parseInt(item.volume) || 0,
-      }));
+      // Convert Alpha Vantage data to our format
+      const historicalData: HistoricalData[] = Object.entries(timeSeries)
+        .map(([date, values]: [string, any]) => ({
+          datetime: date,
+          open: parseFloat(values['1. open']),
+          high: parseFloat(values['2. high']),
+          low: parseFloat(values['3. low']),
+          close: parseFloat(values['4. close']),
+          volume: parseInt(values['5. volume']) || 0,
+        }))
+        .sort((a, b) => new Date(a.datetime).getTime() - new Date(b.datetime).getTime()); // Sort chronologically
+
+      // Filter data based on time range
+      const now = new Date();
+      let cutoffDate: Date;
+      
+      switch (range) {
+        case '1M':
+          cutoffDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+          break;
+        case '6M':
+          cutoffDate = new Date(now.getTime() - 180 * 24 * 60 * 60 * 1000);
+          break;
+        case '1Y':
+          cutoffDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+          break;
+        case '5Y':
+          cutoffDate = new Date(now.getTime() - 5 * 365 * 24 * 60 * 60 * 1000);
+          break;
+        default:
+          cutoffDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      }
+
+      return historicalData.filter(item => new Date(item.datetime) >= cutoffDate);
     } catch (error) {
       console.error(`❌ Failed to fetch historical data for ${symbol}:`, error);
       throw new Error(`Unable to fetch historical data for ${symbol}. ${error instanceof Error ? error.message : 'Please try again later.'}`);
@@ -264,28 +253,63 @@ class StocksAPIService {
 
   async getIntradayData(symbol: string): Promise<IntradayData[]> {
     try {
-      // Note: Intraday data might not be available in free MarketStack plan
-      const data = await this.fetchFromAPI('/intraday', {
-        symbols: symbol.toUpperCase(),
-        interval: '1min',
-        limit: '100'
+      const data = await this.fetchFromAPI({
+        function: 'TIME_SERIES_INTRADAY',
+        symbol: symbol.toUpperCase(),
+        interval: '5min', // 5-minute intervals for good balance
+        outputsize: 'compact' // Gets last 100 data points
       });
       
-      if (!data || !data.data || !Array.isArray(data.data)) {
-        throw new Error(`Intraday data not available for ${symbol} (may require premium plan)`);
+      const timeSeries = data['Time Series (5min)'];
+      if (!timeSeries) {
+        throw new Error(`Intraday data not available for ${symbol}`);
       }
 
-      return data.data.map((item: any) => ({
-        datetime: item.date,
-        open: parseFloat(item.open),
-        high: parseFloat(item.high),
-        low: parseFloat(item.low),
-        close: parseFloat(item.close),
-        volume: parseInt(item.volume) || 0,
-      }));
+      // Convert to our format and get today's data only
+      const today = new Date().toISOString().split('T')[0];
+      
+      return Object.entries(timeSeries)
+        .filter(([datetime]) => datetime.startsWith(today))
+        .map(([datetime, values]: [string, any]) => ({
+          datetime,
+          open: parseFloat(values['1. open']),
+          high: parseFloat(values['2. high']),
+          low: parseFloat(values['3. low']),
+          close: parseFloat(values['4. close']),
+          volume: parseInt(values['5. volume']) || 0,
+        }))
+        .sort((a, b) => new Date(a.datetime).getTime() - new Date(b.datetime).getTime());
     } catch (error) {
       console.error(`❌ Intraday data not available for ${symbol}:`, error);
-      throw new Error(`Intraday data not available for ${symbol}. This may require a premium MarketStack plan.`);
+      // Fallback to recent daily data if intraday fails
+      try {
+        const dailyData = await this.fetchFromAPI({
+          function: 'TIME_SERIES_DAILY',
+          symbol: symbol.toUpperCase(),
+          outputsize: 'compact'
+        });
+        
+        const timeSeries = dailyData['Time Series (Daily)'];
+        if (timeSeries) {
+          const lastFiveDays = Object.entries(timeSeries)
+            .slice(0, 5)
+            .map(([date, values]: [string, any]) => ({
+              datetime: date + ' 16:00:00', // Add time for consistency
+              open: parseFloat(values['1. open']),
+              high: parseFloat(values['2. high']),
+              low: parseFloat(values['3. low']),
+              close: parseFloat(values['4. close']),
+              volume: parseInt(values['5. volume']) || 0,
+            }))
+            .sort((a, b) => new Date(a.datetime).getTime() - new Date(b.datetime).getTime());
+          
+          return lastFiveDays;
+        }
+      } catch (fallbackError) {
+        console.error('❌ Fallback to daily data also failed:', fallbackError);
+      }
+      
+      throw new Error(`Intraday data not available for ${symbol}. Using daily data instead.`);
     }
   }
 
@@ -293,23 +317,24 @@ class StocksAPIService {
     if (!query || query.length < 1) return [];
     
     try {
-      const data = await this.fetchFromAPI('/tickers', { 
-        search: query.toUpperCase(),
-        limit: '10'
+      const data = await this.fetchFromAPI({
+        function: 'SYMBOL_SEARCH',
+        keywords: query.toUpperCase()
       });
       
-      if (!data || !data.data || !Array.isArray(data.data)) {
+      const bestMatches = data['bestMatches'];
+      if (!bestMatches || !Array.isArray(bestMatches)) {
         return [];
       }
 
-      return data.data.map((item: any) => ({
-        symbol: item.symbol,
-        instrument_name: item.name || item.symbol,
-        exchange: item.stock_exchange?.name || item.exchange || 'N/A',
-        mic_code: item.stock_exchange?.mic || 'N/A',
-        currency: item.stock_exchange?.currency || 'USD',
-        country: item.stock_exchange?.country || 'US',
-        type: 'Common Stock',
+      return bestMatches.slice(0, 10).map((item: any) => ({
+        symbol: item['1. symbol'],
+        instrument_name: item['2. name'] || item['1. symbol'],
+        exchange: item['4. region'] || 'US',
+        mic_code: item['4. region'] || 'XNAS',
+        currency: item['8. currency'] || 'USD',
+        country: item['4. region'] || 'US',
+        type: item['3. type'] || 'Equity',
       }));
     } catch (error) {
       console.error(`❌ Stock search failed for "${query}":`, error);
@@ -319,29 +344,27 @@ class StocksAPIService {
 
   async getCompanyInfo(symbol: string): Promise<CompanyInfo> {
     try {
-      const data = await this.fetchFromAPI('/tickers', { 
-        symbols: symbol.toUpperCase(),
-        limit: '1'
+      const data = await this.fetchFromAPI({
+        function: 'OVERVIEW',
+        symbol: symbol.toUpperCase()
       });
       
-      if (!data || !data.data || data.data.length === 0) {
+      if (!data || !data.Symbol) {
         throw new Error(`No company info found for ${symbol}`);
       }
       
-      const item = data.data[0];
-      
       return {
-        symbol: item.symbol,
-        name: item.name || 'Unknown Company',
-        exchange: item.stock_exchange?.name || 'N/A',
-        currency: item.stock_exchange?.currency || 'USD',
-        country: item.stock_exchange?.country || 'US',
+        symbol: data.Symbol,
+        name: data.Name || 'Unknown Company',
+        exchange: data.Exchange || 'N/A',
+        currency: data.Currency || 'USD',
+        country: data.Country || 'US',
         type: 'Common Stock',
-        market_cap: undefined, // Marketstack doesn't provide market cap in basic plan
-        sector: undefined,
-        industry: undefined,
-        website: undefined,
-        description: undefined,
+        market_cap: data.MarketCapitalization ? parseInt(data.MarketCapitalization) : undefined,
+        sector: data.Sector || undefined,
+        industry: data.Industry || undefined,
+        website: data.OfficialSite || undefined,
+        description: data.Description || undefined,
       };
     } catch (error) {
       console.error(`❌ Failed to fetch company info for ${symbol}:`, error);

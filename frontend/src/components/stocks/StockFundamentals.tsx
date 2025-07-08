@@ -14,8 +14,7 @@ export default function StockFundamentals() {
   const [showSearch, setShowSearch] = useState(false);
   const [logoError, setLogoError] = useState(false);
 
-  // Colors for charts
-  const CHART_COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4'];
+  // Colors for charts (removed unused CHART_COLORS)
 
   // Fetch comprehensive company data
   useEffect(() => {

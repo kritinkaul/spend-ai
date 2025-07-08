@@ -1,7 +1,6 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002';
-console.log('🔧 Upload API_URL:', API_URL);
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 export interface UploadResponse {
   success: boolean;

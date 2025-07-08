@@ -278,22 +278,22 @@ const AnalyticsCards = ({ categories, transactions }: { categories: any[], trans
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-4 mb-6 sm:mb-8">
       {cards.map((card, index) => (
         <div 
           key={card.title}
-          className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6 hover:shadow-lg transition-all duration-300 animate-slide-up"
+          className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-4 sm:p-6 hover:shadow-lg transition-all duration-300 animate-slide-up"
           style={{ animationDelay: `${index * 0.1}s` }}
         >
-          <div className="flex items-center justify-between mb-4">
-            <div className={`w-12 h-12 rounded-lg ${card.bgColor} flex items-center justify-center`}>
-              <card.icon className={`h-6 w-6 ${card.color}`} />
+          <div className="flex items-center justify-between mb-3 sm:mb-4">
+            <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg ${card.bgColor} flex items-center justify-center`}>
+              <card.icon className={`h-5 w-5 sm:h-6 sm:w-6 ${card.color}`} />
             </div>
           </div>
           <div>
             <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">{card.title}</p>
-            <p className="text-2xl font-bold text-gray-900 dark:text-white mb-1">{card.value}</p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">{card.description}</p>
+            <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-1">{card.value}</p>
+            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">{card.description}</p>
           </div>
         </div>
       ))}
@@ -391,13 +391,13 @@ export default function Analysis() {
   }
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-6 sm:space-y-8 animate-fade-in">
       {/* Header */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary-600 via-primary-700 to-primary-800 p-8 text-white">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary-600 via-primary-700 to-primary-800 p-6 sm:p-8 text-white">
          <div className="absolute inset-0 bg-black/10"></div>
          <div className="relative z-10">
-           <h1 className="text-3xl font-bold mb-2">Spending Analysis</h1>
-           <p className="text-primary-100 text-lg">
+           <h1 className="text-2xl sm:text-3xl font-bold mb-2">Spending Analysis</h1>
+           <p className="text-primary-100 text-base sm:text-lg">
              A detailed breakdown of your financial patterns and trends.
            </p>
          </div>
@@ -410,18 +410,18 @@ export default function Analysis() {
       <AnalyticsCards categories={categories || []} transactions={allTransactions || []} />
       
       {/* Main Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-8">
         {/* Spending by Category Chart */}
         <div className="lg:col-span-2">
           <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-                <PieChartIcon className="h-5 w-5 mr-2 text-primary-600" />
+            <div className="px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800">
+              <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-2 sm:mb-4 flex items-center">
+                <PieChartIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-primary-600" />
                 Spending by Category
               </h2>
             </div>
-            <div className="p-6">
-              <div className="h-80">
+            <div className="p-4 sm:p-6">
+              <div className="h-64 sm:h-80">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -429,8 +429,8 @@ export default function Analysis() {
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      outerRadius={100}
-                      innerRadius={50}
+                      outerRadius={window.innerWidth < 640 ? 80 : 100}
+                      innerRadius={window.innerWidth < 640 ? 40 : 50}
                       fill="#8884d8"
                       dataKey="value"
                       paddingAngle={5}
@@ -452,19 +452,29 @@ export default function Analysis() {
         {/* Monthly Trends */}
         <div className="lg:col-span-3">
           <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-                <BarChart3 className="h-5 w-5 mr-2 text-primary-600" />
+            <div className="px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800">
+              <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-2 sm:mb-4 flex items-center">
+                <BarChart3 className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-primary-600" />
                 Monthly Income vs Expenses
               </h2>
             </div>
-            <div className="p-6">
-              <div className="h-80">
+            <div className="p-4 sm:p-6">
+              <div className="h-64 sm:h-80">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={monthlyData}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#374151" opacity={0.3} />
-                    <XAxis dataKey="month" tick={{ fill: '#6b7280' }} axisLine={false} tickLine={false} />
-                    <YAxis tickFormatter={(value) => `$${value / 1000}k`} tick={{ fill: '#6b7280' }} axisLine={false} tickLine={false} />
+                    <XAxis 
+                      dataKey="month" 
+                      tick={{ fill: '#6b7280', fontSize: window.innerWidth < 640 ? 10 : 12 }} 
+                      axisLine={false} 
+                      tickLine={false} 
+                    />
+                    <YAxis 
+                      tickFormatter={(value) => `$${value / 1000}k`} 
+                      tick={{ fill: '#6b7280', fontSize: window.innerWidth < 640 ? 10 : 12 }} 
+                      axisLine={false} 
+                      tickLine={false} 
+                    />
                     <Tooltip content={<BarChartTooltip />} />
                     <Legend iconType="circle" />
                     <Bar dataKey="income" fill="#22C55E" name="Income" radius={[4, 4, 0, 0]} />
@@ -478,7 +488,7 @@ export default function Analysis() {
       </div>
 
       {/* Additional Analysis */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
         {/* Spending Trends */}
         <SpendingTrendsCard monthlyData={monthlyData} />
         
