@@ -43,6 +43,19 @@ A modern, full-stack personal finance application that uses AI to analyze spendi
 - ✅ **Database**: PostgreSQL configuration ready
 - 🔄 **Live Demo**: In progress (will be available at deployment completion)
 
+## 🚀 Deployment
+
+### Frontend (Vercel)
+See [VERCEL_DEPLOYMENT.md](./VERCEL_DEPLOYMENT.md) for detailed instructions.
+
+**Quick Steps:**
+1. Connect your GitHub repo to Vercel
+2. Set environment variable: `VITE_API_URL=https://your-backend-url.railway.app`
+3. Deploy!
+
+### Backend (Railway)
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed instructions.
+
 ## 🚀 Quick Start
 
 ### Live Demo
