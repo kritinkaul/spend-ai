@@ -1,6 +1,7 @@
 # SpendAI - AI-Powered Personal Finance Analysis Platform
 
 A modern, full-stack personal finance application that uses AI to analyze spending patterns, provide insights, and help users make better financial decisions.
+https://spend-ai-lime.vercel.app
 
 ## 🚀 Tech Stack
 
@@ -45,7 +46,7 @@ A modern, full-stack personal finance application that uses AI to analyze spendi
 
 ## 🚀 Deployment
 
-### Frontend (Vercel)
+### Frontend (Vercel) https://spend-ai-lime.vercel.app
 See [VERCEL_DEPLOYMENT.md](./VERCEL_DEPLOYMENT.md) for detailed instructions.
 
 **Quick Steps:**
@@ -59,7 +60,7 @@ See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed instructions.
 ## 🚀 Quick Start
 
 ### Live Demo
-**🌐 [Live Demo](https://your-app.vercel.app)** *(Coming soon after deployment)*
+**🌐 [Live Demo](https://spend-ai-lime.vercel.app)** *(DEPLOYED!)*
 
 ### Local Development
 
@@ -84,6 +85,7 @@ This script will:
 The app will be available at:
 - **Frontend**: http://localhost:3000
 - **Backend**: http://localhost:8000
+- **Live Demo**: https://spend-ai-lime.vercel.app
 
 ### Manual Setup
 
@@ -123,7 +125,7 @@ spend-ai/
 
 ## 💡 Usage
 
-1. **Open the App**: Visit http://localhost:3000
+1. **Open the App**: Visit [http://localhost:3000](https://spend-ai-lime.vercel.app)
 2. **Upload Data**: Go to the Upload page and drag & drop your bank statement (CSV or PDF)
 
 3. **View Analytics**: Check the Dashboard for spending insights and trends
