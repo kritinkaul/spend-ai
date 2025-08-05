@@ -206,8 +206,8 @@ else
     echo "🗄️  Database: PostgreSQL (localhost:5432)"
 fi
 echo ""
-echo "Demo Credentials:"
-echo "  Email: demo@spendai.com"
+echo "Sample Credentials:"
+echo "  Email: user@example.com"
 echo "  Password: password123"
 echo ""
 echo "Press Ctrl+C to stop all services"

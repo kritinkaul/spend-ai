@@ -153,11 +153,11 @@ export default function AlertsInsights({ analytics, transactions, className = ""
       });
     }
 
-    // If no real alerts, add some demo ones
+    // If no real alerts, add some sample ones
     if (alerts.length === 0) {
       alerts.push(
         {
-          id: 'demo-1',
+          id: 'sample-1',
           type: 'info',
           icon: Bell,
           title: 'Netflix Subscription',
@@ -166,7 +166,7 @@ export default function AlertsInsights({ analytics, transactions, className = ""
           actionable: true
         },
         {
-          id: 'demo-2',
+          id: 'sample-2',
           type: 'warning',
           icon: Car,
           title: 'Gas Expenses Up',
@@ -175,7 +175,7 @@ export default function AlertsInsights({ analytics, transactions, className = ""
           actionable: true
         },
         {
-          id: 'demo-3',
+          id: 'sample-3',
           type: 'success',
           icon: TrendingUp,
           title: 'Savings Goal Progress',

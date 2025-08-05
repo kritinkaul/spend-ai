@@ -6,18 +6,18 @@ Your SpendAI project is now **FULLY WORKING** with the following improvements:
 
 ### 🔧 What's Fixed
 - ✅ **Port conflicts resolved** - Backend on 8000, Frontend on 3000
-- ✅ **Database upgraded** - PostgreSQL (recruiter-friendly) with SQLite fallback
+- ✅ **Database upgraded** - PostgreSQL with SQLite fallback
 - ✅ **Modern tech stack** - TypeScript, Prisma ORM, Docker support
 - ✅ **Professional setup** - Environment management, proper configuration
-- ✅ **Sample data** - Demo user and transactions ready
+- ✅ **Sample data** - Sample user and transactions ready
 
-### 🎯 Recruiter-Friendly Features
-- **PostgreSQL Database** - Industry standard (not SQLite)
+### 🎯 Key Features
+- **PostgreSQL Database** - Industry standard database
 - **Docker Support** - Modern DevOps practices
 - **TypeScript** - Type-safe development
 - **Prisma ORM** - Professional database management
 - **Environment Configuration** - Production-ready setup
-- **Comprehensive Documentation** - Shows technical skills
+- **Comprehensive Documentation** - Complete technical documentation
 
 ## 🚀 How to Start
 
@@ -45,10 +45,10 @@ Your SpendAI project is now **FULLY WORKING** with the following improvements:
 4. **See Analytics** and insights
 5. **Explore different pages** (Dashboard, Analysis, Insights, Upload, Stocks)
 
-## 🎯 For Job Applications
+## 🎯 Technical Features
 
 ### What This Demonstrates
-- **Full-Stack Development** - React + Node.js + SQLite
+- **Full-Stack Development** - React + Node.js + PostgreSQL
 - **Modern Architecture** - TypeScript, Prisma, Vite
 - **API Design** - RESTful endpoints with proper error handling
 - **Database Design** - Relational database with proper relationships
@@ -56,12 +56,12 @@ Your SpendAI project is now **FULLY WORKING** with the following improvements:
 - **Data Visualization** - Charts and analytics
 - **DevOps Knowledge** - Environment management, deployment
 
-### Portfolio Ready
-- ✅ **Working demo** - Recruiters can actually use it
+### Production Ready
+- ✅ **Working application** - Fully functional
 - ✅ **Professional code** - Clean, well-structured
-- ✅ **Modern tech stack** - What companies actually use
+- ✅ **Modern tech stack** - Industry-standard technologies
 - ✅ **Deployment ready** - Can be deployed to production
-- ✅ **Documentation** - Shows communication skills
+- ✅ **Documentation** - Complete technical documentation
 
 ## 🚀 Next Steps
 
@@ -73,12 +73,12 @@ Your SpendAI project is now **FULLY WORKING** with the following improvements:
 ### For Deployment
 1. **Choose platform** - Railway, Vercel, Heroku
 2. **Follow DEPLOYMENT.md** - Step-by-step guide
-3. **Get live URL** - Perfect for portfolio
+3. **Get live URL** - Deploy to production
 
-### For Job Applications
-1. **Deploy to production** - Get a live demo URL
+### For Production
+1. **Deploy to production** - Get a live URL
 2. **Update README** - Add your live demo link
-3. **Prepare talking points** - Be ready to discuss the tech stack
+3. **Prepare documentation** - Be ready to discuss the tech stack
 4. **Showcase features** - Highlight what makes it special
 
 ## 🛠️ Project Structure
@@ -109,11 +109,9 @@ spend-ai/
 
 Your SpendAI project is now:
 - ✅ **Working perfectly**
-- ✅ **Recruiter-friendly**
 - ✅ **Production-ready**
-- ✅ **Portfolio-worthy**
-
-**You're ready to impress recruiters with a professional, working full-stack application! 🚀**
+- ✅ **Well-documented**
+- ✅ **Professional quality**
 
 ---
 
@@ -123,8 +121,6 @@ Your SpendAI project is now:
 - **Database problems**: Try the simple setup first
 - **Deployment questions**: Follow DEPLOYMENT.md
 - **Docker setup**: Follow DOCKER_SETUP.md
-
-**Good luck with your job applications! 💼**
 
 ## Performance & Data Issues - Fixed! 🚀
 
@@ -178,7 +174,7 @@ npm run dev
 
 ### 4. Access the Application
 - Frontend: http://localhost:3000
-- Backend API: http://localhost:5000
+- Backend API: http://localhost:8000
 
 ## Key Improvements Made
 

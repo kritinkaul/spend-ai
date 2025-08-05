@@ -44,7 +44,7 @@ export default function NetWorthTracker({ className = "" }: NetWorthTrackerProps
         console.error('Error loading assets:', error);
       }
     } else {
-      // Load demo data
+      // Load sample data
       setAssets([
         {
           id: 'checking-account',
@@ -80,7 +80,7 @@ export default function NetWorthTracker({ className = "" }: NetWorthTrackerProps
         console.error('Error loading liabilities:', error);
       }
     } else {
-      // Load demo data
+      // Load sample data
       setLiabilities([
         {
           id: 'credit-card-debt',

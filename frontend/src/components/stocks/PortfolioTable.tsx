@@ -30,7 +30,7 @@ const TOP_STOCKS = [
   { symbol: 'TSLA', name: 'Tesla Inc.' }
 ];
 
-// Sample portfolio positions for demo/first-time users
+// Sample portfolio positions for first-time users
 const SAMPLE_PORTFOLIO: PortfolioPosition[] = [
   {
     id: 'AAPL-sample',
@@ -106,8 +106,8 @@ export default function PortfolioTable() {
         setPortfolio(SAMPLE_PORTFOLIO);
       }
     } else {
-      // If no saved portfolio, load sample data for demo
-      console.log('📊 Loading sample portfolio for demo');
+          // If no saved portfolio, load sample data
+    console.log('📊 Loading sample portfolio');
       setPortfolio(SAMPLE_PORTFOLIO);
     }
   }, []);
@@ -334,7 +334,7 @@ export default function PortfolioTable() {
                 className="flex items-center gap-2 px-3 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
               >
                 <Star className="h-4 w-4" />
-                Load Demo
+                Load Sample
               </button>
             ) : (
               <button

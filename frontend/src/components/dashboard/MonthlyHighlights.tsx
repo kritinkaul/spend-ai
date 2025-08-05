@@ -178,11 +178,11 @@ export default function MonthlyHighlights({ analytics, transactions, className =
       });
     }
 
-    // If no data, show demo highlights
+    // If no data, show sample highlights
     if (highlights.length === 0) {
       return [
         {
-          id: 'demo-top-category',
+          id: 'sample-top-category',
           title: 'Top Spending Category',
           value: 'Food & Dining',
           description: '$485 spent this month',
@@ -193,7 +193,7 @@ export default function MonthlyHighlights({ analytics, transactions, className =
           type: 'insight'
         },
         {
-          id: 'demo-achievement',
+          id: 'sample-achievement',
           title: 'Savings Achievement',
           value: '$750 saved',
           description: 'You\'re ahead of your monthly goal! 🎯',
@@ -204,7 +204,7 @@ export default function MonthlyHighlights({ analytics, transactions, className =
           type: 'achievement'
         },
         {
-          id: 'demo-growth',
+          id: 'sample-growth',
           title: 'Income Growth',
           value: '+12% increase',
           description: 'Compared to last month',
@@ -215,7 +215,7 @@ export default function MonthlyHighlights({ analytics, transactions, className =
           type: 'goal'
         },
         {
-          id: 'demo-controlled',
+          id: 'sample-controlled',
           title: 'Most Controlled',
           value: 'Entertainment',
           description: 'Only $45 spent on subscriptions',

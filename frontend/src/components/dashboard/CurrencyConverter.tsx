@@ -35,7 +35,7 @@ export default function CurrencyConverter({ className = "" }: CurrencyConverterP
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<string>('');
 
-  // Mock exchange rates for demo (in production, use real API)
+  // Mock exchange rates for development (in production, use real API)
   const getMockExchangeRate = (from: string, to: string): number => {
     const rates: Record<string, Record<string, number>> = {
       USD: { EUR: 0.85, GBP: 0.73, JPY: 110, CAD: 1.25, AUD: 1.35, CHF: 0.92, CNY: 6.45, INR: 74.5, BTC: 0.000023 },
@@ -88,7 +88,7 @@ export default function CurrencyConverter({ className = "" }: CurrencyConverterP
       // const data = await response.json();
       // const rate = data.rates[toCurrency];
 
-      // For demo, simulate API delay and use mock data
+      // For development, simulate API delay and use mock data
       await new Promise(resolve => setTimeout(resolve, 500));
       
       const rate = getMockExchangeRate(fromCurrency, toCurrency);
@@ -144,7 +144,7 @@ export default function CurrencyConverter({ className = "" }: CurrencyConverterP
   };
 
   const getRateChange = () => {
-    // Mock rate change for demo
+    // Mock rate change for development
     const change = (Math.random() - 0.5) * 0.02; // ±1% change
     return {
       percent: change * 100,

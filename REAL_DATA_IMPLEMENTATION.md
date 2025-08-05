@@ -99,7 +99,7 @@ backend/data/
 
 ---
 
-## 🎯 **Live Demo & Testing**
+## 🎯 **Live Testing**
 
 ### Test the Complete Flow:
 

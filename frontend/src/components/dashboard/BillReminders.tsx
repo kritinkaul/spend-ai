@@ -146,11 +146,11 @@ export default function BillReminders({ transactions, className = "" }: BillRemi
       }
     });
 
-    // If no bills found, add demo bills
+    // If no bills found, add sample bills
     if (bills.length === 0) {
-      const demoBills: Bill[] = [
+      const sampleBills: Bill[] = [
         {
-          id: 'demo-rent',
+          id: 'sample-rent',
           name: 'Rent Payment',
           amount: 1200,
           category: 'Housing',
@@ -164,7 +164,7 @@ export default function BillReminders({ transactions, className = "" }: BillRemi
           status: 'upcoming'
         },
         {
-          id: 'demo-netflix',
+          id: 'sample-netflix',
           name: 'Netflix Subscription',
           amount: 15.49,
           category: 'Entertainment',
@@ -178,7 +178,7 @@ export default function BillReminders({ transactions, className = "" }: BillRemi
           status: 'due-soon'
         },
         {
-          id: 'demo-insurance',
+          id: 'sample-insurance',
           name: 'Car Insurance',
           amount: 150,
           category: 'Insurance',
@@ -192,7 +192,7 @@ export default function BillReminders({ transactions, className = "" }: BillRemi
           status: 'not-due'
         }
       ];
-      return demoBills;
+      return sampleBills;
     }
 
     return bills.sort((a, b) => a.daysUntilDue - b.daysUntilDue);

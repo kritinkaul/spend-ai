@@ -136,7 +136,7 @@ curl "https://finnhub.io/api/v1/search?q=AAPL&token=d1g87hhr01qk4ao1o8e0d1g87hhr
 - **Frontend**: React + TypeScript on port 3002
 - **Backend**: Express.js on port 8000
 - **API**: Finnhub.io for real stock data
-- **Auth**: Mock JWT authentication (demo-ready)
+- **Auth**: Mock JWT authentication
 - **Proxy**: Vite dev server proxies API calls
 
 ### API Rate Limits:
@@ -168,7 +168,7 @@ curl "https://finnhub.io/api/v1/search?q=AAPL&token=d1g87hhr01qk4ao1o8e0d1g87hhr
 - Environment configuration properly set up
 - Error handling for all edge cases
 - Rate limiting awareness with caching
-- Mock authentication suitable for demos
+- Mock authentication for development
 - Clean codebase with TypeScript
 
 ---
@@ -181,4 +181,4 @@ curl "https://finnhub.io/api/v1/search?q=AAPL&token=d1g87hhr01qk4ao1o8e0d1g87hhr
 4. **Add unit tests** for critical components
 5. **Set up CI/CD** pipeline for deployments
 
-**The app is now fully functional and ready for demonstration! 🎉** 
+**The app is now fully functional and ready for use! 🎉** 

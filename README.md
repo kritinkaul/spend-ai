@@ -1,14 +1,15 @@
 # SpendAI - AI-Powered Personal Finance Analysis Platform
 
 A modern, full-stack personal finance application that uses AI to analyze spending patterns, provide insights, and help users make better financial decisions.
-https://spend-ai-lime.vercel.app
+
+**🌐 [Live Demo](https://spend-ai-lime.vercel.app)**
 
 ## 🚀 Tech Stack
 
 ### Backend
 - **Node.js** with **TypeScript** - Modern, type-safe server development
 - **Express.js** - Fast, unopinionated web framework
-- **PostgreSQL** - Production-ready relational database (much better than SQLite for real-world applications)
+- **PostgreSQL** - Production-ready relational database
 - **Prisma ORM** - Type-safe database client and migrations
 - **JWT Authentication** - Secure user authentication
 - **Redis** - Caching and session management
@@ -39,14 +40,14 @@ https://spend-ai-lime.vercel.app
 
 ## 🚀 Deployment Status
 
-- ✅ **Frontend**: Ready for Vercel deployment
+- ✅ **Frontend**: Deployed on Vercel
 - ✅ **Backend**: Ready for Railway deployment
 - ✅ **Database**: PostgreSQL configuration ready
-- 🔄 **Live Demo**: In progress (will be available at deployment completion)
+- ✅ **Live Demo**: https://spend-ai-lime.vercel.app
 
 ## 🚀 Deployment
 
-### Frontend (Vercel) https://spend-ai-lime.vercel.app
+### Frontend (Vercel)
 See [VERCEL_DEPLOYMENT.md](./VERCEL_DEPLOYMENT.md) for detailed instructions.
 
 **Quick Steps:**
@@ -58,9 +59,6 @@ See [VERCEL_DEPLOYMENT.md](./VERCEL_DEPLOYMENT.md) for detailed instructions.
 See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed instructions.
 
 ## 🚀 Quick Start
-
-### Live Demo
-**🌐 [Live Demo](https://spend-ai-lime.vercel.app)** *(DEPLOYED!)*
 
 ### Local Development
 
@@ -127,7 +125,6 @@ spend-ai/
 
 1. **Open the App**: Visit [http://localhost:3000](https://spend-ai-lime.vercel.app)
 2. **Upload Data**: Go to the Upload page and drag & drop your bank statement (CSV or PDF)
-
 3. **View Analytics**: Check the Dashboard for spending insights and trends
 4. **Explore Categories**: See your spending breakdown by category in Analysis
 5. **Monitor Stocks**: Use the Stocks page for market data and analysis

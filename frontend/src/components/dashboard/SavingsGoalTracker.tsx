@@ -49,7 +49,7 @@ export default function SavingsGoalTracker({ analytics, className = "" }: Saving
         console.error('Error loading goals:', error);
       }
     } else {
-      // Load demo goals
+      // Load sample goals
       setGoals([
         {
           id: 'emergency-fund',

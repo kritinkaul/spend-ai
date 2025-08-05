@@ -173,7 +173,7 @@ export default function StockChart({ symbol, companyName, className = "" }: Stoc
         basePrice = currentData.price || 200;
       } catch (priceError) {
         console.warn('⚠️ Could not get current price, using default');
-        // Use symbol-specific base prices for demo
+        // Use symbol-specific base prices for development
         const basePrices: Record<string, number> = {
           'AAPL': 210, 'TSLA': 300, 'MSFT': 400, 'GOOGL': 180, 
           'AMZN': 180, 'NVDA': 800, 'META': 350, 'MCD': 290
@@ -265,7 +265,7 @@ export default function StockChart({ symbol, companyName, className = "" }: Stoc
                 </span>
                 {isUsingMockData && (
                   <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-2 py-1 rounded-full">
-                    Demo Data
+                    Sample Data
                   </span>
                 )}
               </div>

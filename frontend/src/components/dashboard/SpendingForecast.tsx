@@ -186,9 +186,9 @@ export default function SpendingForecast({ analytics, transactions, className = 
 
   const { status, color, icon: StatusIcon } = getForecastStatus();
 
-  // If no data, show demo forecast
+  // If no data, show sample forecast
   if (forecasts.length === 0) {
-    const demoForecasts: CategoryForecast[] = [
+    const sampleForecasts: CategoryForecast[] = [
       {
         category: 'Housing',
         currentSpending: 1200,
@@ -222,7 +222,7 @@ export default function SpendingForecast({ analytics, transactions, className = 
             <Brain className="h-5 w-5 mr-2 text-indigo-600" />
             AI Spending Forecast
           </h3>
-          <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">Demo forecast - upload transactions for personalized predictions</p>
+          <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">Sample forecast - upload transactions for personalized predictions</p>
         </div>
         <div className="p-6">
           <div className="text-center py-8">

@@ -151,7 +151,7 @@ ${new Date().toLocaleString()}
       doc.save(`SpendAI-Report-${new Date().toISOString().split('T')[0]}.pdf`);
       */
 
-      // For demo, create a downloadable text file
+      // For development, create a downloadable text file
       const content = generatePDFContent();
       const blob = new Blob([content], { type: 'text/plain' });
       const url = URL.createObjectURL(blob);
@@ -355,7 +355,7 @@ ${new Date().toLocaleString()}
         <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
           <p className="text-xs text-gray-600 dark:text-gray-400">
             <strong>Note:</strong> In production, this would generate a professionally formatted PDF using jsPDF with charts, tables, and branding. 
-            Currently exports as text file for demonstration purposes.
+            Currently exports as text file for development purposes.
           </p>
         </div>
       </div>

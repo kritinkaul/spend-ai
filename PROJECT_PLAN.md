@@ -523,4 +523,4 @@ describe('useAuth', () => {
 6. **Upload a sample bank statement**
 7. **Explore the AI insights**
 
-This project demonstrates full-stack development skills, AI integration, modern web technologies, and real-world problem solving - perfect for showcasing to potential employers! 
+This project demonstrates full-stack development skills, AI integration, modern web technologies, and real-world problem solving. 

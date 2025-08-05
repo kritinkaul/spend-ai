@@ -2,15 +2,6 @@
 
 This guide explains how to deploy the SpendAI application to various cloud platforms. The application is designed to be easily deployable and demonstrates modern DevOps practices.
 
-## 🎯 Why This Matters for Recruiters
-
-This deployment setup demonstrates:
-- **Production-ready architecture** with PostgreSQL and Redis
-- **Containerization** with Docker
-- **Environment management** with proper configuration
-- **Scalability** considerations
-- **Modern DevOps practices** that companies actually use
-
 ## 📋 Prerequisites
 
 - GitHub account
@@ -226,7 +217,7 @@ npm audit
 - [ ] **Backup strategy** in place
 - [ ] **Documentation** updated
 
-## 🎯 Recruiter-Friendly Features
+## 🎯 Key Features
 
 This deployment demonstrates:
 
@@ -267,6 +258,4 @@ If you encounter issues:
 3. Test locally first
 4. Check the platform's documentation
 
----
-
-**This deployment setup demonstrates enterprise-level DevOps practices that recruiters look for in candidates!** 
+--- 
