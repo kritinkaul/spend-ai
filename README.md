@@ -1,8 +1,43 @@
-# SpendAI - AI-Powered Personal Finance Analysis Platform
+# 💰 SpendAI - AI-Powered Personal Finance Analysis Platform
+
+**Comprehensive Financial Analytics Dashboard | Built by Kritin Kaul**
 
 A modern, full-stack personal finance application that uses AI to analyze spending patterns, provide insights, and help users make better financial decisions.
 
-**🌐 [Live Demo](https://spend-ai-lime.vercel.app)**
+## 🚀 Tech Stack
+
+![Next.js](https://img.shields.io/badge/Next.js-15.4.2-black)
+![React](https://img.shields.io/badge/React-18.0-blue)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)
+![Node.js](https://img.shields.io/badge/Node.js-18.0-green)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15.0-blue)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.0-38B2AC)
+![Deployed on Vercel](https://img.shields.io/badge/Deployed_on-Vercel-000000)
+
+## 🎯 Quick Actions
+
+[![Live Demo](https://img.shields.io/badge/Live_Demo-🌐_Visit_App-blue?style=for-the-badge)](https://spend-ai-lime.vercel.app)
+[![Documentation](https://img.shields.io/badge/Documentation-📚_Read_More-green?style=for-the-badge)](./QUICK_START.md)
+[![Deploy](https://img.shields.io/badge/Deploy-🚀_Deploy_Your_Own-orange?style=for-the-badge)](./DEPLOYMENT.md)
+
+## 🎯 Project Overview
+
+SpendAI is a comprehensive personal finance analytics platform that demonstrates full-stack development capabilities, AI integration expertise, and modern web development best practices. Built for financial management, this platform processes bank statements, provides AI-powered insights, and offers real-time financial analytics across multiple data sources.
+
+## 💡 Key Value Propositions
+
+**For Users:**
+- 📊 **Smart Analytics**: AI-powered spending pattern analysis and trend detection
+- 💳 **Multi-Format Support**: Process CSV and PDF bank statements seamlessly
+- 📈 **Real-time Dashboard**: Beautiful visualizations and interactive charts
+- 🎯 **Category Intelligence**: Automated expense categorization and insights
+- 📱 **Responsive Design**: Works perfectly on all devices and screen sizes
+
+**For Developers:**
+- 🏗️ **Modern Architecture**: TypeScript, React 18, Node.js, PostgreSQL
+- 🔧 **Production Ready**: Docker, CI/CD, environment management
+- 📚 **Comprehensive Docs**: Detailed deployment and development guides
+- 🚀 **Easy Deployment**: One-click deployment to Vercel and Railway
 
 ## 🚀 Tech Stack
 
